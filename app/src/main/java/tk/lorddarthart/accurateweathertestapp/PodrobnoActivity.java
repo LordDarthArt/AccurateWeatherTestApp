@@ -4,8 +4,13 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.LinkedList;
 
 public class PodrobnoActivity extends AppCompatActivity {
     TextView txtDay, txtMonthYear, txtText, txtTemp, txtTitle, txtHumidity, txtPressure, txtRising, txtVisibility, tempHighDay1, tempLowDay1, nameDay1, descDay1, tempHighDay2, tempLowDay2, nameDay2, descDay2, tempHighDay3, tempLowDay3, nameDay3, descDay3, tempHighDay4, tempLowDay4, nameDay4, descDay4, tempHighDay5, tempLowDay5, nameDay5, descDay5, tempHighDay6, tempLowDay6, nameDay6, descDay6, tempHighDay7, tempLowDay7, nameDay7, descDay7;
@@ -22,8 +27,6 @@ public class PodrobnoActivity extends AppCompatActivity {
         txtTitle = findViewById(R.id.txtTitle);
         txtHumidity = findViewById(R.id.txtHumidity);
         txtPressure = findViewById(R.id.txtPressure);
-        txtRising = findViewById(R.id.txtRising);
-        txtVisibility = findViewById(R.id.txtVisibility);
         tempHighDay1 = findViewById(R.id.tempHighDay1);
         tempLowDay1 = findViewById(R.id.tempDayLow1);
         descDay1 = findViewById(R.id.descDay1);
@@ -64,94 +67,114 @@ public class PodrobnoActivity extends AppCompatActivity {
         } else {
             txtTemp.setText(String.valueOf(getIntent().getExtras().getDouble("weatherNow")));
         }
-        txtTitle.setText(getIntent().getExtras().getString("weatherDescription"));
+        txtTitle.setText(getIntent().getExtras().getString("weatherCity"));
         txtHumidity.setText(String.valueOf(getIntent().getExtras().getDouble("weatherHumidity"))+"%");
         txtPressure.setText(String.valueOf(getIntent().getExtras().getDouble("weatherPressure"))+" mb");
-        txtRising.setText(String.valueOf(getIntent().getExtras().getLong("weatherRising")));
-        txtVisibility.setText(String.valueOf(getIntent().getExtras().getDouble("weatherVisibility"))+" km");
-        if (getIntent().getExtras().getDouble("weatherD1high")>0) {
-            tempHighDay1.setText("+"+String.valueOf(getIntent().getExtras().getDouble("weatherD1high")));
+
+        Type type = new TypeToken<LinkedList<WeatherDay>>() {}.getType();
+        Gson gson = new Gson();
+        LinkedList<WeatherDay> finalOutputString = gson.fromJson(getIntent().getExtras().getString("weatherD1"), type);
+        if (finalOutputString.get(0).getWeather_hight()>0) {
+            tempHighDay1.setText("+"+String.valueOf(finalOutputString.get(0).getWeather_hight()));
         } else {
-            tempHighDay1.setText(String.valueOf(getIntent().getExtras().getDouble("weatherD1high")));
+            tempHighDay1.setText(String.valueOf(finalOutputString.get(0).getWeather_hight()));
         }
-        if (getIntent().getExtras().getDouble("weatherD1low")>0.0) {
-            tempLowDay1.setText("+" + String.valueOf(getIntent().getExtras().getDouble("weatherD1low")));
+        if (finalOutputString.get(0).getWeather_low()>0.0) {
+            tempLowDay1.setText("+" + String.valueOf(finalOutputString.get(0).getWeather_low()));
         } else {
-            tempLowDay1.setText(String.valueOf(getIntent().getExtras().getDouble("weatherD1low")));
+            tempLowDay1.setText(String.valueOf(finalOutputString.get(0).getWeather_low()));
         }
-        descDay1.setText(getIntent().getExtras().getString("weatherD1text"));
-        nameDay1.setText(new DayofWeekConversion().convert(getIntent().getExtras().getString("weatherD1day")));
-        if (getIntent().getExtras().getDouble("weatherD2high")>0) {
-            tempHighDay2.setText("+"+String.valueOf(getIntent().getExtras().getDouble("weatherD2high")));
+        descDay1.setText(finalOutputString.get(0).getWeather_text());
+        nameDay1.setText(finalOutputString.get(0).getWeather_day());
+
+        finalOutputString.clear();
+        finalOutputString = gson.fromJson(getIntent().getExtras().getString("weatherD2"), type);
+        if (finalOutputString.get(0).getWeather_hight()>0) {
+            tempHighDay2.setText("+"+String.valueOf(finalOutputString.get(0).getWeather_hight()));
         } else {
-            tempHighDay2.setText(String.valueOf(getIntent().getExtras().getDouble("weatherD2high")));
+            tempHighDay2.setText(String.valueOf(finalOutputString.get(0).getWeather_hight()));
         }
-        if (getIntent().getExtras().getDouble("weatherD2low")>0.0) {
-            tempLowDay2.setText("+"+String.valueOf(getIntent().getExtras().getDouble("weatherD2low")));
+        if (finalOutputString.get(0).getWeather_low()>0.0) {
+            tempLowDay2.setText("+" + String.valueOf(finalOutputString.get(0).getWeather_low()));
         } else {
-            tempLowDay2.setText(String.valueOf(getIntent().getExtras().getDouble("weatherD2low")));
+            tempLowDay2.setText(String.valueOf(finalOutputString.get(0).getWeather_low()));
         }
-        descDay2.setText(getIntent().getExtras().getString("weatherD2text"));
-        nameDay2.setText(new DayofWeekConversion().convert(getIntent().getExtras().getString("weatherD2day")));
-        if (getIntent().getExtras().getDouble("weatherD3high")>0) {
-            tempHighDay3.setText("+"+String.valueOf(getIntent().getExtras().getDouble("weatherD3high")));
+        descDay2.setText(finalOutputString.get(0).getWeather_text());
+        nameDay2.setText(finalOutputString.get(0).getWeather_day());
+
+        finalOutputString.clear();
+        finalOutputString = gson.fromJson(getIntent().getExtras().getString("weatherD3"), type);
+        if (finalOutputString.get(0).getWeather_hight()>0) {
+            tempHighDay3.setText("+"+String.valueOf(finalOutputString.get(0).getWeather_hight()));
         } else {
-            tempHighDay3.setText(String.valueOf(getIntent().getExtras().getDouble("weatherD3high")));
+            tempHighDay3.setText(String.valueOf(finalOutputString.get(0).getWeather_hight()));
         }
-        if (getIntent().getExtras().getDouble("weatherD3low")>0.0) {
-            tempLowDay3.setText("+"+String.valueOf(getIntent().getExtras().getDouble("weatherD3low")));
+        if (finalOutputString.get(0).getWeather_low()>0.0) {
+            tempLowDay3.setText("+" + String.valueOf(finalOutputString.get(0).getWeather_low()));
         } else {
-            tempLowDay3.setText(String.valueOf(getIntent().getExtras().getDouble("weatherD3low")));
+            tempLowDay3.setText(String.valueOf(finalOutputString.get(0).getWeather_low()));
         }
-        descDay3.setText(getIntent().getExtras().getString("weatherD3text"));
-        nameDay3.setText(new DayofWeekConversion().convert(getIntent().getExtras().getString("weatherD3day")));
-        if (getIntent().getExtras().getDouble("weatherD4high")>0) {
-            tempHighDay4.setText("+"+String.valueOf(getIntent().getExtras().getDouble("weatherD4high")));
+        descDay3.setText(finalOutputString.get(0).getWeather_text());
+        nameDay3.setText(finalOutputString.get(0).getWeather_day());
+
+        finalOutputString.clear();
+        finalOutputString = gson.fromJson(getIntent().getExtras().getString("weatherD4"), type);
+        if (finalOutputString.get(0).getWeather_hight()>0) {
+            tempHighDay4.setText("+"+String.valueOf(finalOutputString.get(0).getWeather_hight()));
         } else {
-            tempHighDay4.setText(String.valueOf(getIntent().getExtras().getDouble("weatherD4high")));
+            tempHighDay4.setText(String.valueOf(finalOutputString.get(0).getWeather_hight()));
         }
-        if (getIntent().getExtras().getDouble("weatherD4low")>0.0) {
-            tempLowDay4.setText("+"+String.valueOf(getIntent().getExtras().getDouble("weatherD4low")));
+        if (finalOutputString.get(0).getWeather_low()>0.0) {
+            tempLowDay4.setText("+" + String.valueOf(finalOutputString.get(0).getWeather_low()));
         } else {
-            tempLowDay4.setText(String.valueOf(getIntent().getExtras().getDouble("weatherD4low")));
+            tempLowDay4.setText(String.valueOf(finalOutputString.get(0).getWeather_low()));
         }
-        descDay4.setText(getIntent().getExtras().getString("weatherD4text"));
-        nameDay4.setText(new DayofWeekConversion().convert(getIntent().getExtras().getString("weatherD4day")));
-        if (getIntent().getExtras().getDouble("weatherD5high")>0) {
-            tempHighDay5.setText("+"+String.valueOf(getIntent().getExtras().getDouble("weatherD5high")));
+        descDay4.setText(finalOutputString.get(0).getWeather_text());
+        nameDay4.setText(finalOutputString.get(0).getWeather_day());
+
+        finalOutputString.clear();
+        finalOutputString = gson.fromJson(getIntent().getExtras().getString("weatherD5"), type);
+        if (finalOutputString.get(0).getWeather_hight()>0) {
+            tempHighDay5.setText("+"+String.valueOf(finalOutputString.get(0).getWeather_hight()));
         } else {
-            tempHighDay5.setText(String.valueOf(getIntent().getExtras().getDouble("weatherD5high")));
+            tempHighDay5.setText(String.valueOf(finalOutputString.get(0).getWeather_hight()));
         }
-        if (getIntent().getExtras().getDouble("weatherD5low")>0.0) {
-            tempLowDay5.setText("+"+String.valueOf(getIntent().getExtras().getDouble("weatherD5low")));
+        if (finalOutputString.get(0).getWeather_low()>0.0) {
+            tempLowDay5.setText("+" + String.valueOf(finalOutputString.get(0).getWeather_low()));
         } else {
-            tempLowDay5.setText(String.valueOf(getIntent().getExtras().getDouble("weatherD5low")));
+            tempLowDay5.setText(String.valueOf(finalOutputString.get(0).getWeather_low()));
         }
-        descDay5.setText(getIntent().getExtras().getString("weatherD5text"));
-        nameDay5.setText(new DayofWeekConversion().convert(getIntent().getExtras().getString("weatherD5day")));
-        if (getIntent().getExtras().getDouble("weatherD6high")>0) {
-            tempHighDay6.setText("+"+String.valueOf(getIntent().getExtras().getDouble("weatherD6high")));
+        descDay5.setText(finalOutputString.get(0).getWeather_text());
+        nameDay5.setText(finalOutputString.get(0).getWeather_day());
+
+        finalOutputString.clear();
+        finalOutputString = gson.fromJson(getIntent().getExtras().getString("weatherD6"), type);
+        if (finalOutputString.get(0).getWeather_hight()>0) {
+            tempHighDay6.setText("+"+String.valueOf(finalOutputString.get(0).getWeather_hight()));
         } else {
-            tempHighDay6.setText(String.valueOf(getIntent().getExtras().getDouble("weatherD6high")));
+            tempHighDay6.setText(String.valueOf(finalOutputString.get(0).getWeather_hight()));
         }
-        if (getIntent().getExtras().getDouble("weatherD6low")>0.0) {
-            tempLowDay6.setText("+"+String.valueOf(getIntent().getExtras().getDouble("weatherD6low")));
+        if (finalOutputString.get(0).getWeather_low()>0.0) {
+            tempLowDay6.setText("+" + String.valueOf(finalOutputString.get(0).getWeather_low()));
         } else {
-            tempLowDay6.setText(String.valueOf(getIntent().getExtras().getDouble("weatherD6low")));
+            tempLowDay6.setText(String.valueOf(finalOutputString.get(0).getWeather_low()));
         }
-        descDay6.setText(getIntent().getExtras().getString("weatherD6text"));
-        nameDay6.setText(new DayofWeekConversion().convert(getIntent().getExtras().getString("weatherD6day")));
-        if (getIntent().getExtras().getDouble("weatherD7high")>0) {
-            tempHighDay7.setText("+"+String.valueOf(getIntent().getExtras().getDouble("weatherD7high")));
+        descDay6.setText(finalOutputString.get(0).getWeather_text());
+        nameDay6.setText(finalOutputString.get(0).getWeather_day());
+
+        finalOutputString.clear();
+        finalOutputString = gson.fromJson(getIntent().getExtras().getString("weatherD7"), type);
+        if (finalOutputString.get(0).getWeather_hight()>0) {
+            tempHighDay7.setText("+"+String.valueOf(finalOutputString.get(0).getWeather_hight()));
         } else {
-            tempHighDay7.setText(String.valueOf(getIntent().getExtras().getDouble("weatherD7high")));
+            tempHighDay7.setText(String.valueOf(finalOutputString.get(0).getWeather_hight()));
         }
-        if (getIntent().getExtras().getDouble("weatherD7low")>0.0) {
-            tempLowDay7.setText("+"+String.valueOf(getIntent().getExtras().getDouble("weatherD7low")));
+        if (finalOutputString.get(0).getWeather_low()>0.0) {
+            tempLowDay7.setText("+" + String.valueOf(finalOutputString.get(0).getWeather_low()));
         } else {
-            tempLowDay7.setText(String.valueOf(getIntent().getExtras().getDouble("weatherD7low")));
+            tempLowDay7.setText(String.valueOf(finalOutputString.get(0).getWeather_low()));
         }
-        descDay7.setText(getIntent().getExtras().getString("weatherD7text"));
-        nameDay7.setText(new DayofWeekConversion().convert(getIntent().getExtras().getString("weatherD7day")));
+        descDay7.setText(finalOutputString.get(0).getWeather_text());
+        nameDay7.setText(finalOutputString.get(0).getWeather_day());
     }
 }

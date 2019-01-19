@@ -11,8 +11,6 @@ public class Weather {
     private String weather_description;
     private double weather_humidity;
     private double weather_pressure;
-    private long weather_rising;
-    private double weather_visibility;
     private String weather_sunrise;
     private String weather_sunset;
     private String weather_d1;
@@ -23,7 +21,7 @@ public class Weather {
     private String weather_d6;
     private String weather_d7;
 
-    public Weather(long weather_date, String weather_filterName, double weather_now, String weather_city, double weather_high, double weather_low, String weather_text, String weather_description, double weather_humidity, double weather_pressure, long weather_rising, double weather_visibility, String weather_sunrise, String weather_sunset, String weather_d1, String weather_d2, String weather_d3, String weather_d4, String weather_d5, String weather_d6, String weather_d7) {
+    public Weather(long weather_date, String weather_filterName, double weather_now, String weather_city, double weather_high, double weather_low, String weather_text, String weather_description, double weather_humidity, double weather_pressure, String weather_sunrise, String weather_sunset, String weather_d1, String weather_d2, String weather_d3, String weather_d4, String weather_d5, String weather_d6, String weather_d7) {
         this.weather_date = weather_date;
         this.weather_filterName = weather_filterName;
         this.weather_now = weather_now;
@@ -34,8 +32,6 @@ public class Weather {
         this.weather_description = weather_description;
         this.weather_humidity = weather_humidity;
         this.weather_pressure = weather_pressure;
-        this.weather_rising = weather_rising;
-        this.weather_visibility = weather_visibility;
         this.weather_sunrise = weather_sunrise;
         this.weather_sunset = weather_sunset;
         this.weather_d1 = weather_d1;
@@ -129,22 +125,6 @@ public class Weather {
 
     public void setWeather_pressure(double weather_pressure) {
         this.weather_pressure = weather_pressure;
-    }
-
-    public long getWeather_rising() {
-        return weather_rising;
-    }
-
-    public void setWeather_rising(long weather_rising) {
-        this.weather_rising = weather_rising;
-    }
-
-    public double getWeather_visibility() {
-        return weather_visibility;
-    }
-
-    public void setWeather_visibility(double weather_visibility) {
-        this.weather_visibility = weather_visibility;
     }
 
     public String getWeather_sunrise() {

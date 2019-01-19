@@ -22,8 +22,6 @@ public class WeatherDatabaseHelper extends SQLiteOpenHelper implements BaseColum
     public static final String WEATHER_DESCRIPTION = "weather_description";
     public static final String WEATHER_HUMIDITY = "weather_humidity";
     public static final String WEATHER_PRESSURE = "weather_pressure";
-    public static final String WEATHER_RISING = "weather_rising";
-    public static final String WEATHER_VISIBILITY = "weather_visibility";
     public static final String WEATHER_SUNRISE = "weather_sunrise";
     public static final String WEATHER_SUNSET = "weather_sunset";
     public static final String WEATHER_D1 = "weather_d1";
@@ -33,6 +31,20 @@ public class WeatherDatabaseHelper extends SQLiteOpenHelper implements BaseColum
     public static final String WEATHER_D5 = "weather_d5";
     public static final String WEATHER_D6 = "weather_d6";
     public static final String WEATHER_D7 = "weather_d7";
+
+    public static final String DATABASE_WEATHER_CITY = "city";
+    public static final String WEATHER_CITY_ID = "city_id";
+    public static final String WEATHER_CITY_FILTERNAME = "city_name";
+    public static final String WEATHER_CITY_LATITUDE = "city_latitude";
+    public static final String WEATHER_CITY_LONGITUDE = "city_longitude";
+
+    public static final String DATABASE_CREATE_WEATHER_CITY_SCRIPT = "create table "
+            + DATABASE_WEATHER_CITY
+            + " (" + WEATHER_CITY_ID + " integer not null primary key autoincrement, "
+            + WEATHER_CITY_FILTERNAME + " text not null, "
+            + WEATHER_CITY_LATITUDE + " text not null, "
+            + WEATHER_CITY_LONGITUDE + " text not null, "
+            + "UNIQUE(" + WEATHER_CITY_FILTERNAME + ") ON CONFLICT REPLACE);";
 
     public static final String DATABASE_CREATE_WEATHER_SCRIPT = "create table "
             + DATABASE_WEATHER
@@ -47,8 +59,6 @@ public class WeatherDatabaseHelper extends SQLiteOpenHelper implements BaseColum
             + WEATHER_DESCRIPTION + " text not null, "
             + WEATHER_HUMIDITY + " double not null, "
             + WEATHER_PRESSURE + " double not null, "
-            + WEATHER_RISING + " long not null, "
-            + WEATHER_VISIBILITY + " double not null, "
             + WEATHER_SUNRISE + " text not null, "
             + WEATHER_SUNSET + " text not null, "
             + WEATHER_D1 + " text not null, "
@@ -71,6 +81,7 @@ public class WeatherDatabaseHelper extends SQLiteOpenHelper implements BaseColum
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(DATABASE_CREATE_WEATHER_SCRIPT);
+        db.execSQL(DATABASE_CREATE_WEATHER_CITY_SCRIPT);
     }
 
     @Override
@@ -79,8 +90,7 @@ public class WeatherDatabaseHelper extends SQLiteOpenHelper implements BaseColum
     }
 
     public static void addWeather(SQLiteDatabase mSqLiteDatabase, long weather_date, String weather_filterName, double weather_now, String weather_city, double weather_high,
-                                  double weather_low, String weather_text, String weather_description, double weather_humidity, double weather_pressure, long weather_rising,
-                                  double weather_visibility, String weather_sunrise, String weather_sunset, String weather_d1, String weather_d2, String weather_d3,
+                                  double weather_low, String weather_text, String weather_description, double weather_humidity, double weather_pressure, String weather_sunrise, String weather_sunset, String weather_d1, String weather_d2, String weather_d3,
                                   String weather_d4, String weather_d5, String weather_d6, String weather_d7) {
 
         ContentValues newValues = new ContentValues();
@@ -93,8 +103,6 @@ public class WeatherDatabaseHelper extends SQLiteOpenHelper implements BaseColum
         newValues.put(WeatherDatabaseHelper.WEATHER_TEXT, weather_text);
         newValues.put(WeatherDatabaseHelper.WEATHER_HUMIDITY, weather_humidity);
         newValues.put(WeatherDatabaseHelper.WEATHER_PRESSURE, weather_pressure);
-        newValues.put(WeatherDatabaseHelper.WEATHER_RISING, weather_rising);
-        newValues.put(WeatherDatabaseHelper.WEATHER_VISIBILITY, weather_visibility);
         newValues.put(WeatherDatabaseHelper.WEATHER_DESCRIPTION, weather_description);
         newValues.put(WeatherDatabaseHelper.WEATHER_SUNRISE, weather_sunrise);
         newValues.put(WeatherDatabaseHelper.WEATHER_SUNSET, weather_sunset);

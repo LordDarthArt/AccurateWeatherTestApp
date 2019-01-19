@@ -10,10 +10,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -36,24 +39,28 @@ import android.widget.Toast;
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     SQLiteDatabase mSqLiteDatabase;
+    Geocoder geocoder;
     WeatherDatabaseHelper mDatabaseHelper;
     HttpServiceHelper httpServiceHelper;
     ArrayList<Weather> weather = new ArrayList<>();
     private Cursor cursor;
+    private Cursor cursor2;
     private ProgressDialog dialog;
     RecyclerView mRecyclerView;
     RecyclerView.LayoutManager layoutManager;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor ed;
     int opening=0, opening2=0;
-    String[] cities;
+    List<Address> addresses;
+    LinkedList<City> cities = new LinkedList<>();
     ConstraintLayout consLayText;
     ImageView constraintLayout;
     FloatingActionButton fab;
@@ -65,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        geocoder = new Geocoder(getApplicationContext());
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         ed = sharedPreferences.edit();
         constraintLayout = findViewById(R.id.consLayHide);
@@ -76,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         mSqLiteDatabase = mDatabaseHelper.getWritableDatabase();
         String query = "SELECT " + WeatherDatabaseHelper.WEATHER_FILTERNAME + ", " + WeatherDatabaseHelper.WEATHER_DATE + ", " + WeatherDatabaseHelper.WEATHER_CITY + ", " + WeatherDatabaseHelper.WEATHER_NOW + ", "
                 + WeatherDatabaseHelper.WEATHER_HIGH + " , " + WeatherDatabaseHelper.WEATHER_LOW + ", " + WeatherDatabaseHelper.WEATHER_TEXT + ", " + WeatherDatabaseHelper.WEATHER_DESCRIPTION + ", "
-                + WeatherDatabaseHelper.WEATHER_HUMIDITY + ", " + WeatherDatabaseHelper.WEATHER_PRESSURE + ", " + WeatherDatabaseHelper.WEATHER_RISING + ", " + WeatherDatabaseHelper.WEATHER_VISIBILITY + ", "
+                + WeatherDatabaseHelper.WEATHER_HUMIDITY + ", " + WeatherDatabaseHelper.WEATHER_PRESSURE  + ", "
                 + WeatherDatabaseHelper.WEATHER_SUNRISE + ", " + WeatherDatabaseHelper.WEATHER_SUNSET + ", " + WeatherDatabaseHelper.WEATHER_D1+ ", " + WeatherDatabaseHelper.WEATHER_D2+ ", " + WeatherDatabaseHelper.WEATHER_D3
                 + ", " + WeatherDatabaseHelper.WEATHER_D4+ ", " + WeatherDatabaseHelper.WEATHER_D5+ ", " + WeatherDatabaseHelper.WEATHER_D6+ ", " + WeatherDatabaseHelper.WEATHER_D7 +" FROM " + WeatherDatabaseHelper.DATABASE_WEATHER;
         cursor = mSqLiteDatabase.rawQuery(query, new String[0]);
@@ -95,11 +103,49 @@ public class MainActivity extends AppCompatActivity {
         consLayClose = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.conslay_close);
         tvOpen = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.tv_open);
         tvClose = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.tv_close);
-        if (!sharedPreferences.contains("cities")) {
-            ed.putString("cities", "Saint-Petersburg,Russia,,Moscow,Russia,,");
+        if (sharedPreferences.getBoolean("cities", false)==true) {
+            String citiesQuery = "SELECT * FROM " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY;
+            cursor2 = mSqLiteDatabase.rawQuery(citiesQuery, new String[0]);
+            cursor2.moveToFirst();
+            cursor2.moveToPrevious();
+            cities.clear();
+            while (cursor2.moveToNext()) {
+                cities.add(new City(cursor2.getInt(cursor2.getColumnIndex(mDatabaseHelper.WEATHER_CITY_ID)),cursor2.getString(cursor2.getColumnIndex(mDatabaseHelper.WEATHER_CITY_FILTERNAME)),cursor2.getString(cursor2.getColumnIndex(mDatabaseHelper.WEATHER_CITY_LATITUDE)),cursor2.getString(cursor2.getColumnIndex(mDatabaseHelper.WEATHER_CITY_LONGITUDE))));
+            }
+        } else {
+            try {
+                addresses = geocoder.getFromLocationName("Санкт-Петербург", 1);
+                if(addresses.size() > 0) {
+                    double latitude= addresses.get(0).getLatitude();
+                    double longitude= addresses.get(0).getLongitude();
+                    String addCitiesQuery = "INSERT INTO " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY + " ("+mDatabaseHelper.WEATHER_CITY_FILTERNAME+", "+mDatabaseHelper.WEATHER_CITY_LATITUDE+", "+mDatabaseHelper.WEATHER_CITY_LONGITUDE+") VALUES ('Санкт-Петербург',"+String.valueOf(latitude)+", "+String.valueOf(longitude)+")";
+                    mSqLiteDatabase.execSQL(addCitiesQuery);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                addresses = geocoder.getFromLocationName("Москва", 1);
+                if(addresses.size() > 0) {
+                    double latitude= addresses.get(0).getLatitude();
+                    double longitude= addresses.get(0).getLongitude();
+                    String addCitiesQuery = "INSERT INTO " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY + " ("+mDatabaseHelper.WEATHER_CITY_FILTERNAME+", "+mDatabaseHelper.WEATHER_CITY_LATITUDE+", "+mDatabaseHelper.WEATHER_CITY_LONGITUDE+") VALUES ('Москва',"+String.valueOf(latitude)+", "+String.valueOf(longitude)+")";
+                    mSqLiteDatabase.execSQL(addCitiesQuery);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ed.putBoolean("cities", true);
             ed.commit();
+            String citiesQuery = "SELECT * FROM " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY;
+            cursor2 = mSqLiteDatabase.rawQuery(citiesQuery, new String[0]);
+            cursor2.moveToFirst();
+            cursor2.moveToPrevious();
+            cities.clear();
+            while (cursor2.moveToNext()) {
+                cities.add(new City(cursor2.getInt(cursor2.getColumnIndex(mDatabaseHelper.WEATHER_CITY_ID)),cursor2.getString(cursor2.getColumnIndex(mDatabaseHelper.WEATHER_CITY_FILTERNAME)),cursor2.getString(cursor2.getColumnIndex(mDatabaseHelper.WEATHER_CITY_LATITUDE)),cursor2.getString(cursor2.getColumnIndex(mDatabaseHelper.WEATHER_CITY_LONGITUDE))));
+            }
         }
-        cities = sharedPreferences.getString("cities", "").split(",,");
         httpServiceHelper = new HttpServiceHelper();
         editText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -124,17 +170,34 @@ public class MainActivity extends AppCompatActivity {
                                     animateFab();
                                 }
                             });
-                            ed.putString("cities", sharedPreferences.getString("cities", "")+editText.getText().toString()+",,");
-                            ed.commit();
+                            try {
+                                addresses = geocoder.getFromLocationName(editText.getText().toString(), 1);
+                                if(addresses.size() > 0) {
+                                    String latitude= String.valueOf(addresses.get(0).getLatitude());
+                                    String longitude= String.valueOf(addresses.get(0).getLongitude());
+                                    String sql = "Insert into " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY + " ("+mDatabaseHelper.WEATHER_CITY_FILTERNAME+", "+mDatabaseHelper.WEATHER_CITY_LATITUDE+", "+mDatabaseHelper.WEATHER_CITY_LONGITUDE+") VALUES ('"+editText.getText().toString()+"',"+latitude+", "+longitude+")";
+                                    mSqLiteDatabase.execSQL(sql);
+                                } else {
+                                    throw new IOException();
+                                }
+                            } catch (IOException e) {
+                                Snackbar.make(getWindow().getDecorView().findViewById(android.R.id.content), "Произошла ошибка, повторите попытку ввода", Snackbar.LENGTH_LONG).show();
+                            }
                             editText.setText("");
                             hideSoftKeyboard();
-                            cities = sharedPreferences.getString("cities", "").split(",,");
+                            String citiesQuery = "SELECT * FROM " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY;
+                            cursor2 = mSqLiteDatabase.rawQuery(citiesQuery, new String[0]);
+                            cursor2.moveToFirst();
+                            cursor2.moveToPrevious();
+                            while (cursor2.moveToNext()) {
+                                cities.add(new City(cursor2.getInt(cursor2.getColumnIndex(mDatabaseHelper.WEATHER_CITY_ID)),cursor2.getString(cursor2.getColumnIndex(mDatabaseHelper.WEATHER_CITY_FILTERNAME)),cursor2.getString(cursor2.getColumnIndex(mDatabaseHelper.WEATHER_CITY_LATITUDE)),cursor2.getString(cursor2.getColumnIndex(mDatabaseHelper.WEATHER_CITY_LONGITUDE))));
+                            }
                             opening=0;
                             opening2=0;
                             mRecyclerView.setVisibility(View.INVISIBLE);
                             try {
-                                for (int i=0; i<cities.length; i++) {
-                                    new UpdateForecast().execute(cities[i]);
+                                for (int i=0; i<cities.size(); i++) {
+                                    new UpdateForecast(cities.get(i).getCityName(), cities.get(i).getLatitude(), cities.get(i).getLongitude()).execute();
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -159,8 +222,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         try {
-            for (int i=0; i<cities.length; i++) {
-                new UpdateForecast().execute(cities[i]);
+            for (int i=0; i<cities.size(); i++) {
+                new UpdateForecast(cities.get(i).getCityName(), cities.get(i).getLatitude(), cities.get(i).getLongitude()).execute();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -197,25 +260,36 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    protected void onStop() {
+        super.onStop();
+        TaskLoader.cancel();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         LinearLayout container = new LinearLayout(getApplicationContext());
         container.setOrientation(LinearLayout.VERTICAL);
-        for (int i=0; i<cities.length; i++) {
+        String citiesQuery = "SELECT * FROM " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY;
+        cursor2 = mSqLiteDatabase.rawQuery(citiesQuery, new String[0]);
+        cursor2.moveToFirst();
+        cursor2.moveToPrevious();
+        cities.clear();
+        while (cursor2.moveToNext()) {
+            cities.add(new City(cursor2.getInt(cursor2.getColumnIndex(mDatabaseHelper.WEATHER_CITY_ID)), cursor2.getString(cursor2.getColumnIndex(mDatabaseHelper.WEATHER_CITY_FILTERNAME))));
+        }
+        for (int i=0; i<cities.size(); i++) {
             View holder = getLayoutInflater().inflate(R.layout.settings_city, null, false);
-            final TextView textViewCity = (TextView) holder.findViewById(R.id.tvCity);
-            textViewCity.setText(cities[i]);
+            final TextView textViewCity = holder.findViewById(R.id.tvCity);
+            textViewCity.setText(cities.get(i).getCityName());
             final ImageView img = holder.findViewById(R.id.ivDelCity);
             img.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     try{
-                        String cities = sharedPreferences.getString("cities", "");
-                        String fixed = cities.replace(textViewCity.getText().toString()+",,", "");
-                        ed.putString("cities", fixed);
-                        ed.commit();
                         String query = "DELETE from " + mDatabaseHelper.DATABASE_WEATHER + " WHERE "+ mDatabaseHelper.WEATHER_FILTERNAME + " = \"" + textViewCity.getText().toString()+"\"";
+                        String query2 = "DELETE from " + mDatabaseHelper.DATABASE_WEATHER_CITY + " WHERE "+ mDatabaseHelper.WEATHER_CITY_FILTERNAME + " = \"" + textViewCity.getText().toString()+"\"";
                         mSqLiteDatabase.execSQL(query);
+                        mSqLiteDatabase.execSQL(query2);
                         textViewCity.setVisibility(View.GONE);
                         img.setVisibility(View.GONE);
                     } catch (Exception e) {
@@ -238,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onShow(DialogInterface dialogInterface) {
 
-                        Button button = ((AlertDialog) builder).getButton(AlertDialog.BUTTON_POSITIVE);
+                        Button button = builder.getButton(AlertDialog.BUTTON_POSITIVE);
                         button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
@@ -264,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void getTodayEvents() {
+    public void getCurrentForecast() {
         cursor.moveToFirst();
         cursor.moveToPrevious();
         weather.clear();
@@ -281,8 +355,6 @@ public class MainActivity extends AppCompatActivity {
             weathers.setWeather_description(cursor.getString(cursor.getColumnIndex(mDatabaseHelper.WEATHER_DESCRIPTION)));
             weathers.setWeather_humidity(cursor.getDouble(cursor.getColumnIndex(mDatabaseHelper.WEATHER_HUMIDITY)));
             weathers.setWeather_pressure(cursor.getDouble(cursor.getColumnIndex(mDatabaseHelper.WEATHER_PRESSURE)));
-            weathers.setWeather_rising(cursor.getLong(cursor.getColumnIndex(mDatabaseHelper.WEATHER_RISING)));
-            weathers.setWeather_visibility(cursor.getDouble(cursor.getColumnIndex(mDatabaseHelper.WEATHER_VISIBILITY)));
             weathers.setWeather_d1(cursor.getString(cursor.getColumnIndex(mDatabaseHelper.WEATHER_D1)));
             weathers.setWeather_d2(cursor.getString(cursor.getColumnIndex(mDatabaseHelper.WEATHER_D2)));
             weathers.setWeather_d3(cursor.getString(cursor.getColumnIndex(mDatabaseHelper.WEATHER_D3)));
@@ -315,15 +387,13 @@ public class MainActivity extends AppCompatActivity {
                 startTaskInfoActivity.putExtra("weatherText", weathers.getWeather_text());
                 startTaskInfoActivity.putExtra("weatherHumidity", weathers.getWeather_humidity());
                 startTaskInfoActivity.putExtra("weatherPressure", weathers.getWeather_pressure());
-                startTaskInfoActivity.putExtra("weatherRising", weathers.getWeather_rising());
-                startTaskInfoActivity.putExtra("weatherVisibility", weathers.getWeather_visibility());
                 startTaskInfoActivity.putExtra("weatherD1", weathers.getWeather_d1());
-                startTaskInfoActivity.putExtra("weatherD1", weathers.getWeather_d2());
-                startTaskInfoActivity.putExtra("weatherD1", weathers.getWeather_d3());
-                startTaskInfoActivity.putExtra("weatherD1", weathers.getWeather_d4());
-                startTaskInfoActivity.putExtra("weatherD1", weathers.getWeather_d5());
-                startTaskInfoActivity.putExtra("weatherD1", weathers.getWeather_d6());
-                startTaskInfoActivity.putExtra("weatherD1", weathers.getWeather_d7());
+                startTaskInfoActivity.putExtra("weatherD2", weathers.getWeather_d2());
+                startTaskInfoActivity.putExtra("weatherD3", weathers.getWeather_d3());
+                startTaskInfoActivity.putExtra("weatherD4", weathers.getWeather_d4());
+                startTaskInfoActivity.putExtra("weatherD5", weathers.getWeather_d5());
+                startTaskInfoActivity.putExtra("weatherD6", weathers.getWeather_d6());
+                startTaskInfoActivity.putExtra("weatherD7", weathers.getWeather_d7());
                 startActivity(startTaskInfoActivity);
             }
 
@@ -336,25 +406,17 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(recyclerViewAdapter);
     }
 
-    public boolean tableExists(SQLiteDatabase db, String tableName)
-    {
-        if (tableName == null || db == null || !db.isOpen())
-        {
-            return false;
-        }
-        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM sqlite_master WHERE type = ? AND name = ?", new String[] {"table", tableName});
-        if (!cursor.moveToFirst())
-        {
-            cursor.close();
-            return false;
-        }
-        int count = cursor.getInt(0);
-        cursor.close();
-        return count > 0;
-    }
-
     class UpdateForecast extends AsyncTask<String, Void, Void> {
         int responseCode;
+        String city;
+        String latitude;
+        String longitude;
+
+        public UpdateForecast(String city, String latitude, String longitude) {
+            this.city = city;
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
 
         @Override
         protected void onPreExecute() {
@@ -370,13 +432,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(String...strings) {
+            TaskLoader.setTask(this);
             try {
-                responseCode = httpServiceHelper.getTasks(mSqLiteDatabase, strings[0]);
+                responseCode = httpServiceHelper.getForecast(mSqLiteDatabase, city, latitude, longitude);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (ParseException e) {
                 e.printStackTrace();
             }
             return null;
@@ -385,14 +446,14 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void result) {
             opening2++;
-            if (opening2==cities.length) {
+            if (opening2==cities.size()) {
                 String query = "SELECT " + WeatherDatabaseHelper.WEATHER_FILTERNAME + ", " + WeatherDatabaseHelper.WEATHER_DATE + ", " + WeatherDatabaseHelper.WEATHER_CITY + ", " + WeatherDatabaseHelper.WEATHER_NOW + ", "
                         + WeatherDatabaseHelper.WEATHER_HIGH + " , " + WeatherDatabaseHelper.WEATHER_LOW + ", " + WeatherDatabaseHelper.WEATHER_TEXT + ", " + WeatherDatabaseHelper.WEATHER_DESCRIPTION + ", "
-                        + WeatherDatabaseHelper.WEATHER_HUMIDITY + ", " + WeatherDatabaseHelper.WEATHER_PRESSURE + ", " + WeatherDatabaseHelper.WEATHER_RISING + ", " + WeatherDatabaseHelper.WEATHER_VISIBILITY + ", "
+                        + WeatherDatabaseHelper.WEATHER_HUMIDITY + ", " + WeatherDatabaseHelper.WEATHER_PRESSURE + ", "
                         + WeatherDatabaseHelper.WEATHER_SUNRISE + ", " + WeatherDatabaseHelper.WEATHER_SUNSET + ", " + WeatherDatabaseHelper.WEATHER_D1 + ", " + WeatherDatabaseHelper.WEATHER_D2 + ", " + WeatherDatabaseHelper.WEATHER_D3
                         + ", " + WeatherDatabaseHelper.WEATHER_D4 + ", " + WeatherDatabaseHelper.WEATHER_D5 + ", " + WeatherDatabaseHelper.WEATHER_D6 + ", " + WeatherDatabaseHelper.WEATHER_D7+ " FROM " + WeatherDatabaseHelper.DATABASE_WEATHER;
                 cursor = mSqLiteDatabase.rawQuery(query, new String[0]);
-                getTodayEvents();
+                getCurrentForecast();
                 dialog.dismiss();
                 mRecyclerView.setVisibility(View.VISIBLE);
                 constraintLayout.setVisibility(View.GONE);
@@ -412,7 +473,7 @@ public class MainActivity extends AppCompatActivity {
     public void hideSoftKeyboard() {
         try {
             InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+            inputMethodManager.hideSoftInputFromWindow(fab.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         } catch (Exception e) {
             e.printStackTrace();
         }
