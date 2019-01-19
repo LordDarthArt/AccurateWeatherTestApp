@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // При вводе текста в поле нового города проверяется длина строки (?=0)
                 if (editText.getText().length()>0&&fab.getRotation()!=-45) {
                     fab.setImageResource(android.R.drawable.ic_menu_send);
                     fab.setRotation(-45);
@@ -269,6 +270,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         LinearLayout container = new LinearLayout(getApplicationContext());
         container.setOrientation(LinearLayout.VERTICAL);
+        final Integer[] changes = {0};
         String citiesQuery = "SELECT * FROM " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY;
         cursor2 = mSqLiteDatabase.rawQuery(citiesQuery, new String[0]);
         cursor2.moveToFirst();
@@ -292,6 +294,7 @@ public class MainActivity extends AppCompatActivity {
                         mSqLiteDatabase.execSQL(query2);
                         textViewCity.setVisibility(View.GONE);
                         img.setVisibility(View.GONE);
+                        changes[0]++;
                     } catch (Exception e) {
                         Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG);
                     }
@@ -300,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
             container.addView(holder);
         }
         final AlertDialog builder = new AlertDialog.Builder( this)
-                .setTitle("Введите необходимые данные")
+                .setTitle("Текущие города")
                 .setPositiveButton(android.R.string.ok, null)
                 .setCancelable(false)
                 .setView(container)
@@ -318,7 +321,9 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(View view) {
                                 try {
                                     builder.dismiss();
-                                    MainActivity.this.recreate();
+                                    if (changes[0]>0) {
+                                        MainActivity.this.recreate();
+                                    }
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -339,6 +344,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getCurrentForecast() {
+        // Получаем объект погоды на текущий день из бд
         cursor.moveToFirst();
         cursor.moveToPrevious();
         weather.clear();
@@ -371,6 +377,7 @@ public class MainActivity extends AppCompatActivity {
         OnItemTouchListener itemTouchListener = new OnItemTouchListener() {
             @Override
             public void onCardViewTap(View view, int position) {
+                // При тапе на карточку с городом создаётся интент с информацией, заранее сохранённой в базе
                 Intent startTaskInfoActivity = new Intent(MainActivity.this, PodrobnoActivity.class);
                 Weather weathers = weather.get(position);
                 startTaskInfoActivity.putExtra("weatherCity", weathers.getWeather_city());
@@ -461,16 +468,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void showSoftKeyboard() {
-        try {
-            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-            inputMethodManager.toggleSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.SHOW_FORCED, 0);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void hideSoftKeyboard() {
+    public void hideSoftKeyboard() { // Спрятать вручную софтовую клавиатуру Android.
         try {
             InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(fab.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);

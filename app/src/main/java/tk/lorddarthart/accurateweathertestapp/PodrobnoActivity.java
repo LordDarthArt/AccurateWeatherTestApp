@@ -1,8 +1,15 @@
 package tk.lorddarthart.accurateweathertestapp;
 
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.TextView;
+import android.support.v7.widget.RecyclerView.LayoutManager;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -13,13 +20,47 @@ import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 
 public class PodrobnoActivity extends AppCompatActivity {
-    TextView txtDay, txtMonthYear, txtText, txtTemp, txtTitle, txtHumidity, txtPressure, txtRising, txtVisibility, tempHighDay1, tempLowDay1, nameDay1, descDay1, tempHighDay2, tempLowDay2, nameDay2, descDay2, tempHighDay3, tempLowDay3, nameDay3, descDay3, tempHighDay4, tempLowDay4, nameDay4, descDay4, tempHighDay5, tempLowDay5, nameDay5, descDay5, tempHighDay6, tempLowDay6, nameDay6, descDay6, tempHighDay7, tempLowDay7, nameDay7, descDay7;
+    TextView txtDay, txtMonthYear, txtText, txtTemp, txtTitle, txtHumidity, txtPressure, txt3days, txt7days;
+    LinkedList<WeatherDay> finalOutputString;
+    RecyclerView recyclerView;
+    HorizontalRecyclerViewAdapter recyclerViewAdapter;
+    LayoutManager layoutManager;
+    Integer futureForecasts; // Количество дней, которые необходимо отобразить
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podrobno);
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        Type type = new TypeToken<LinkedList<WeatherDay>>() {}.getType();
+        Gson gson = new Gson();
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        editor = sharedPreferences.edit();
+        txt3days = findViewById(R.id.textView3days);
+        txt7days = findViewById(R.id.textView7days);
+        if (!sharedPreferences.contains("futureForecast")) {  //Настроено ли время прогноза на предстоящие дни
+            editor.putString("futureForecast", "7days");
+            futureForecasts = 7;
+            editor.commit();
+            txt7days.setTextColor(getResources().getColor(R.color.colorPrimary));
+            txt3days.setTextColor(Color.parseColor("#808080"));
+        } else { //Если настроено, то...
+            if (sharedPreferences.getString("futureForecast", "7days").equals("3days")) { //...Приравнять переменную к трём и выделить текст
+                futureForecasts = 3;
+                txt3days.setTextColor(getResources().getColor(R.color.colorPrimary));
+                txt7days.setTextColor(Color.parseColor("#808080"));
+            } else if (sharedPreferences.getString("futureForecast", "7days").equals("7days")) { //...Приравнять переменную к семи и выделить текст
+                futureForecasts = 7;
+                txt7days.setTextColor(getResources().getColor(R.color.colorPrimary));
+                txt3days.setTextColor(Color.parseColor("#808080"));
+            }
+        }
+        recyclerView = findViewById(R.id.horizontalRecyclerView);
+        layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(layoutManager);
         txtDay = findViewById(R.id.txtDay);
         txtMonthYear = findViewById(R.id.txtMonthYear);
         txtText = findViewById(R.id.txtText);
@@ -27,34 +68,6 @@ public class PodrobnoActivity extends AppCompatActivity {
         txtTitle = findViewById(R.id.txtTitle);
         txtHumidity = findViewById(R.id.txtHumidity);
         txtPressure = findViewById(R.id.txtPressure);
-        tempHighDay1 = findViewById(R.id.tempHighDay1);
-        tempLowDay1 = findViewById(R.id.tempDayLow1);
-        descDay1 = findViewById(R.id.descDay1);
-        nameDay1 = findViewById(R.id.nameDay1);
-        tempHighDay2 = findViewById(R.id.tempHighDay2);
-        tempLowDay2 = findViewById(R.id.tempDayLow2);
-        descDay2 = findViewById(R.id.descDay2);
-        nameDay2 = findViewById(R.id.nameDay2);
-        tempHighDay3 = findViewById(R.id.tempHighDay3);
-        tempLowDay3 = findViewById(R.id.tempDayLow3);
-        descDay3 = findViewById(R.id.descDay3);
-        nameDay3 = findViewById(R.id.nameDay3);
-        tempHighDay4 = findViewById(R.id.tempHighDay4);
-        tempLowDay4 = findViewById(R.id.tempDayLow4);
-        descDay4 = findViewById(R.id.descDay4);
-        nameDay4 = findViewById(R.id.nameDay4);
-        tempHighDay5 = findViewById(R.id.tempHighDay5);
-        tempLowDay5 = findViewById(R.id.tempDayLow5);
-        descDay5 = findViewById(R.id.descDay5);
-        nameDay5 = findViewById(R.id.nameDay5);
-        tempHighDay6 = findViewById(R.id.tempHighDay6);
-        tempLowDay6 = findViewById(R.id.tempDayLow6);
-        descDay6 = findViewById(R.id.descDay6);
-        nameDay6 = findViewById(R.id.nameDay6);
-        tempHighDay7 = findViewById(R.id.tempHighDay7);
-        tempLowDay7 = findViewById(R.id.tempDayLow7);
-        descDay7 = findViewById(R.id.descDay7);
-        nameDay7 = findViewById(R.id.nameDay7);
         try {
             txtDay.setText(new SimpleDateFormat("dd").format(sdf.parse(getIntent().getExtras().getString("weatherDate"))));
             txtMonthYear.setText(new SimpleDateFormat("MMMM, yyyy").format(sdf.parse(getIntent().getExtras().getString("weatherDate"))));
@@ -71,110 +84,41 @@ public class PodrobnoActivity extends AppCompatActivity {
         txtHumidity.setText(String.valueOf(getIntent().getExtras().getDouble("weatherHumidity"))+"%");
         txtPressure.setText(String.valueOf(getIntent().getExtras().getDouble("weatherPressure"))+" mb");
 
-        Type type = new TypeToken<LinkedList<WeatherDay>>() {}.getType();
-        Gson gson = new Gson();
-        LinkedList<WeatherDay> finalOutputString = gson.fromJson(getIntent().getExtras().getString("weatherD1"), type);
-        if (finalOutputString.get(0).getWeather_hight()>0) {
-            tempHighDay1.setText("+"+String.valueOf(finalOutputString.get(0).getWeather_hight()));
-        } else {
-            tempHighDay1.setText(String.valueOf(finalOutputString.get(0).getWeather_hight()));
-        }
-        if (finalOutputString.get(0).getWeather_low()>0.0) {
-            tempLowDay1.setText("+" + String.valueOf(finalOutputString.get(0).getWeather_low()));
-        } else {
-            tempLowDay1.setText(String.valueOf(finalOutputString.get(0).getWeather_low()));
-        }
-        descDay1.setText(finalOutputString.get(0).getWeather_text());
-        nameDay1.setText(finalOutputString.get(0).getWeather_day());
+        finalOutputString = new LinkedList<>();
 
-        finalOutputString.clear();
-        finalOutputString = gson.fromJson(getIntent().getExtras().getString("weatherD2"), type);
-        if (finalOutputString.get(0).getWeather_hight()>0) {
-            tempHighDay2.setText("+"+String.valueOf(finalOutputString.get(0).getWeather_hight()));
-        } else {
-            tempHighDay2.setText(String.valueOf(finalOutputString.get(0).getWeather_hight()));
-        }
-        if (finalOutputString.get(0).getWeather_low()>0.0) {
-            tempLowDay2.setText("+" + String.valueOf(finalOutputString.get(0).getWeather_low()));
-        } else {
-            tempLowDay2.setText(String.valueOf(finalOutputString.get(0).getWeather_low()));
-        }
-        descDay2.setText(finalOutputString.get(0).getWeather_text());
-        nameDay2.setText(finalOutputString.get(0).getWeather_day());
+        txt3days.setOnClickListener(new View.OnClickListener() { // Обработка клика на три дня
+            @Override
+            public void onClick(View v) {
+                if (futureForecasts!=3) { //Если клик не на себя же, изменяем настройку
+                    futureForecasts=3;
+                    editor.putString("futureForecast", "3days");
+                    editor.commit();
+                    txt3days.setTextColor(getResources().getColor(R.color.colorPrimary));
+                    txt7days.setTextColor(Color.parseColor("#808080"));
+                    PodrobnoActivity.this.recreate();
+                }
+            }
+        });
 
-        finalOutputString.clear();
-        finalOutputString = gson.fromJson(getIntent().getExtras().getString("weatherD3"), type);
-        if (finalOutputString.get(0).getWeather_hight()>0) {
-            tempHighDay3.setText("+"+String.valueOf(finalOutputString.get(0).getWeather_hight()));
-        } else {
-            tempHighDay3.setText(String.valueOf(finalOutputString.get(0).getWeather_hight()));
-        }
-        if (finalOutputString.get(0).getWeather_low()>0.0) {
-            tempLowDay3.setText("+" + String.valueOf(finalOutputString.get(0).getWeather_low()));
-        } else {
-            tempLowDay3.setText(String.valueOf(finalOutputString.get(0).getWeather_low()));
-        }
-        descDay3.setText(finalOutputString.get(0).getWeather_text());
-        nameDay3.setText(finalOutputString.get(0).getWeather_day());
+        txt7days.setOnClickListener(new View.OnClickListener() { // Обработка клика на семь дней
+            @Override
+            public void onClick(View v) {
+                if (futureForecasts!=7) { //Если клик не на себя же, изменяем настройку
+                    futureForecasts=7;
+                    editor.putString("futureForecast", "7days");
+                    editor.commit();
+                    txt7days.setTextColor(getResources().getColor(R.color.colorPrimary));
+                    txt3days.setTextColor(Color.parseColor("#808080"));
+                    PodrobnoActivity.this.recreate();
 
-        finalOutputString.clear();
-        finalOutputString = gson.fromJson(getIntent().getExtras().getString("weatherD4"), type);
-        if (finalOutputString.get(0).getWeather_hight()>0) {
-            tempHighDay4.setText("+"+String.valueOf(finalOutputString.get(0).getWeather_hight()));
-        } else {
-            tempHighDay4.setText(String.valueOf(finalOutputString.get(0).getWeather_hight()));
-        }
-        if (finalOutputString.get(0).getWeather_low()>0.0) {
-            tempLowDay4.setText("+" + String.valueOf(finalOutputString.get(0).getWeather_low()));
-        } else {
-            tempLowDay4.setText(String.valueOf(finalOutputString.get(0).getWeather_low()));
-        }
-        descDay4.setText(finalOutputString.get(0).getWeather_text());
-        nameDay4.setText(finalOutputString.get(0).getWeather_day());
+                }
+            }
+        });
 
-        finalOutputString.clear();
-        finalOutputString = gson.fromJson(getIntent().getExtras().getString("weatherD5"), type);
-        if (finalOutputString.get(0).getWeather_hight()>0) {
-            tempHighDay5.setText("+"+String.valueOf(finalOutputString.get(0).getWeather_hight()));
-        } else {
-            tempHighDay5.setText(String.valueOf(finalOutputString.get(0).getWeather_hight()));
+        for (int i=0; i<futureForecasts; i++) { // Добавляем данные в подготовленный List
+            finalOutputString.add(((LinkedList<WeatherDay>)gson.fromJson(getIntent().getExtras().getString("weatherD"+(i+1)), type)).get(0));
         }
-        if (finalOutputString.get(0).getWeather_low()>0.0) {
-            tempLowDay5.setText("+" + String.valueOf(finalOutputString.get(0).getWeather_low()));
-        } else {
-            tempLowDay5.setText(String.valueOf(finalOutputString.get(0).getWeather_low()));
-        }
-        descDay5.setText(finalOutputString.get(0).getWeather_text());
-        nameDay5.setText(finalOutputString.get(0).getWeather_day());
-
-        finalOutputString.clear();
-        finalOutputString = gson.fromJson(getIntent().getExtras().getString("weatherD6"), type);
-        if (finalOutputString.get(0).getWeather_hight()>0) {
-            tempHighDay6.setText("+"+String.valueOf(finalOutputString.get(0).getWeather_hight()));
-        } else {
-            tempHighDay6.setText(String.valueOf(finalOutputString.get(0).getWeather_hight()));
-        }
-        if (finalOutputString.get(0).getWeather_low()>0.0) {
-            tempLowDay6.setText("+" + String.valueOf(finalOutputString.get(0).getWeather_low()));
-        } else {
-            tempLowDay6.setText(String.valueOf(finalOutputString.get(0).getWeather_low()));
-        }
-        descDay6.setText(finalOutputString.get(0).getWeather_text());
-        nameDay6.setText(finalOutputString.get(0).getWeather_day());
-
-        finalOutputString.clear();
-        finalOutputString = gson.fromJson(getIntent().getExtras().getString("weatherD7"), type);
-        if (finalOutputString.get(0).getWeather_hight()>0) {
-            tempHighDay7.setText("+"+String.valueOf(finalOutputString.get(0).getWeather_hight()));
-        } else {
-            tempHighDay7.setText(String.valueOf(finalOutputString.get(0).getWeather_hight()));
-        }
-        if (finalOutputString.get(0).getWeather_low()>0.0) {
-            tempLowDay7.setText("+" + String.valueOf(finalOutputString.get(0).getWeather_low()));
-        } else {
-            tempLowDay7.setText(String.valueOf(finalOutputString.get(0).getWeather_low()));
-        }
-        descDay7.setText(finalOutputString.get(0).getWeather_text());
-        nameDay7.setText(finalOutputString.get(0).getWeather_day());
+        recyclerViewAdapter = new HorizontalRecyclerViewAdapter(PodrobnoActivity.this, finalOutputString);
+        recyclerView.setAdapter(recyclerViewAdapter);
     }
 }

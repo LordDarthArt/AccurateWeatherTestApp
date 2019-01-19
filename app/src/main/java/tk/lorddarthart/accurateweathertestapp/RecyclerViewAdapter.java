@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-
+    //Адаптер для создания карточек с погодой городов на сегодняшний день на главном экране.
     Context context;
     ArrayList<Weather> listWeather;
     View view;
@@ -35,7 +35,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(RecyclerViewAdapter.ViewHolder holder, int position) {
         Weather weather = listWeather.get(position);
-        holder.tvCity.setText(weather.getWeather_city());
+        holder.tvCity.setText(weather.getWeather_city()); //город
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
         Date date = new Date(weather.getWeather_date());
         holder.tvToday.setText(sdf.format(date));
