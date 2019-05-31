@@ -1,15 +1,15 @@
-package tk.lorddarthart.accurateweathertestapp;
+package tk.lorddarthart.accurateweathertestapp.util
 
-import android.view.View;
+import android.view.View
 
-public interface OnItemTouchListener {
+interface OnItemTouchListener {
     /**
      * Callback invoked when the user Taps one of the RecyclerView items
      *
      * @param view     the CardView touched
      * @param position the index of the item touched in the RecyclerView
      */
-    void onCardViewTap(View view, int position);
+    fun onCardViewTap(view: View, position: Int)
 
     /**
      * Callback invoked when the Button1 of an item is touched
@@ -18,6 +18,6 @@ public interface OnItemTouchListener {
      * @param position the index of the item touched in the RecyclerView
      */
 
-    void onButtonCvMenuClick(View view, int position);
+    fun onButtonCvMenuClick(view: View, position: Int)
 
 }

@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">AccurateWeatherTestApp</string>
+    <string name="menuPropertyConnection">keep-alive</string>
+    <string name="requestPropertyContentType">application/octet-stream</string>
+    <string name="requestPropertyYandexKey">0b7449ae-2807-4618-9afe-6781f963e8a4</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
