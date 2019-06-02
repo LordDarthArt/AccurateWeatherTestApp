@@ -15,7 +15,7 @@ import android.widget.TextView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import tk.lorddarthart.accurateweathertestapp.R
-import tk.lorddarthart.accurateweathertestapp.controller.HorizontalRecyclerViewAdapter
+import tk.lorddarthart.accurateweathertestapp.adapter.HorizontalRecyclerViewAdapter
 import tk.lorddarthart.accurateweathertestapp.model.WeatherDayModel
 import tk.lorddarthart.accurateweathertestapp.view.base.BaseFragment
 import java.text.ParseException
@@ -44,6 +44,11 @@ class ExtendedFragment: BaseFragment() {
     private var mWeatherText: String? = null
     private var mWeatherNow: Double? = null
     private var mWeatherCity: String? = null
+    private var mWeatherHigh: Double? = null
+    private var mWeatherLow: Double? = null
+    private var mWeatherSunrise: String? = null
+    private var mWeatherSunset: String? = null
+    private var mWeatherDescription: String? = null
     private var mWeatherHumidity: Double? = null
     private var mWeatherPressure: Double? = null
 
@@ -54,6 +59,11 @@ class ExtendedFragment: BaseFragment() {
             mWeatherText = it.getString(WEATHER_TEXT)
             mWeatherNow = it.getDouble(WEATHER_NOW)
             mWeatherCity = it.getString(WEATHER_CITY)
+            mWeatherHigh = it.getDouble(WEATHER_HIGH)
+            mWeatherLow = it.getDouble(WEATHER_LOW)
+            mWeatherSunrise = it.getString(WEATHER_SUNRISE)
+            mWeatherSunset = it.getString(WEATHER_SUNSET)
+            mWeatherDescription = it.getString(WEATHER_DESCRIPTION)
             mWeatherHumidity = it.getDouble(WEATHER_HUMIDITY)
             mWeatherPressure = it.getDouble(WEATHER_PRESSURE)
         }
@@ -61,7 +71,7 @@ class ExtendedFragment: BaseFragment() {
 
     @SuppressLint("SimpleDateFormat", "SetTextI18n")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mView = inflater.inflate(R.layout.activity_podrobno, container, false)
+        mView = inflater.inflate(R.layout.fragment_extended, container, false)
 
         initViews()
 
@@ -174,12 +184,19 @@ class ExtendedFragment: BaseFragment() {
         const val WEATHER_CITY = "weatherCity"
         const val WEATHER_HUMIDITY = "weatherHumidity"
         const val WEATHER_PRESSURE = "weatherPressure"
+        const val WEATHER_HIGH = "weatherHigh"
+        const val WEATHER_LOW = "weatherLow"
+        const val WEATHER_SUNRISE = "weatherSunrise"
+        const val WEATHER_SUNSET = "weatherSunset"
+        const val WEATHER_DESCRIPTION = "weatherDescription"
         private const val WEATHER_D = "weatherD"
 
         @JvmStatic
         fun newInstance(mWeatherDate: String, mWeatherText: String,
                         mWeatherNow: Double, mWeatherCity: String,
                         mWeatherHumidity: Double, mWeatherPressure: Double,
+                        mWeatherHigh: Double, mWeatherLow: Double, mWeatherSunrise: String,
+                        mWeatherSunset: String, mWeatherDescription: String,
                         mWeatherDay1: String, mWeatherDay2: String, mWeatherDay3: String,
                         mWeatherDay4: String, mWeatherDay5: String, mWeatherDay6: String,
                         mWeatherDay7: String) =

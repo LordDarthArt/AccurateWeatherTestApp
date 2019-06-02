@@ -1,4 +1,4 @@
-package tk.lorddarthart.accurateweathertestapp.controller
+package tk.lorddarthart.accurateweathertestapp.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
