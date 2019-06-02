@@ -8,13 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import tk.lorddarthart.accurateweathertestapp.R
-import tk.lorddarthart.accurateweathertestapp.model.WeatherDay
+import tk.lorddarthart.accurateweathertestapp.model.WeatherDayModel
 
 import java.util.LinkedList
 
 internal class HorizontalRecyclerViewAdapter(//Адаптер для создания карточек с погодой на неделю в подробном просмотре.
         var context: Context,
-        var listWeatherDay: LinkedList<WeatherDay>
+        var listWeatherDay: LinkedList<WeatherDayModel>
 ) : RecyclerView.Adapter<HorizontalRecyclerViewAdapter.ViewHolder>() {
     private lateinit var mView: View
     private lateinit var mViewHolder: ViewHolder

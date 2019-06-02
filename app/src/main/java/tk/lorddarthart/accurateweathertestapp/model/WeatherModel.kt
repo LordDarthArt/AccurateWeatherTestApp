@@ -1,6 +1,6 @@
 package tk.lorddarthart.accurateweathertestapp.model
 
-class Weather {
+class WeatherModel {
     var weatherDate: Long = 0
     var weatherFilterName: String? = null
     var weatherNow: Double = 0.toDouble()

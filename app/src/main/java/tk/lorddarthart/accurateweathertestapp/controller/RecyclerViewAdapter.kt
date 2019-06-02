@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import tk.lorddarthart.accurateweathertestapp.R
-import tk.lorddarthart.accurateweathertestapp.model.Weather
+import tk.lorddarthart.accurateweathertestapp.model.WeatherModel
 import tk.lorddarthart.accurateweathertestapp.util.OnItemTouchListener
 
 import java.text.SimpleDateFormat
@@ -16,7 +16,7 @@ import java.util.Date
 
 class RecyclerViewAdapter(  //Адаптер для создания карточек с погодой городов на сегодняшний день на главном экране.
         private var context: Context,
-        private var listWeather: MutableList<Weather>,
+        private var listWeather: MutableList<WeatherModel>,
         private val onItemTouchListener: OnItemTouchListener
 ) : RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
     private lateinit var view: View

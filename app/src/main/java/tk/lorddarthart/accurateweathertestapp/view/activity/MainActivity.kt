@@ -39,8 +39,8 @@ import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.controller.RecyclerViewAdapter
 import tk.lorddarthart.accurateweathertestapp.util.TaskLoader
 import tk.lorddarthart.accurateweathertestapp.util.WeatherDatabaseHelper
-import tk.lorddarthart.accurateweathertestapp.model.City
-import tk.lorddarthart.accurateweathertestapp.model.Weather
+import tk.lorddarthart.accurateweathertestapp.model.CityModel
+import tk.lorddarthart.accurateweathertestapp.model.WeatherModel
 import tk.lorddarthart.accurateweathertestapp.util.NetworkHelper
 import tk.lorddarthart.accurateweathertestapp.util.OnItemTouchListener
 
@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var geocoder: Geocoder
     private lateinit var mDatabaseHelper: WeatherDatabaseHelper
     private lateinit var httpServiceHelper: NetworkHelper
-    private lateinit var weather: MutableList<Weather>
+    private lateinit var weather: MutableList<WeatherModel>
     private var cursor: Cursor? = null
     private var cursor2: Cursor? = null
     private var dialog: ProgressDialog? = null
@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
     internal var opening = 0
     internal var opening2 = 0
     private lateinit var addresses: List<Address>
-    private lateinit var cities: MutableList<City>
+    private lateinit var cities: MutableList<CityModel>
     private lateinit var consLayText: ConstraintLayout
     private lateinit var constraintLayout: ImageView
     private lateinit var fab: FloatingActionButton
@@ -115,7 +115,7 @@ class MainActivity : AppCompatActivity() {
             cities.clear()
             while (cursor2!!.moveToNext()) {
                 cities.add(
-                        City(cursor2!!.getInt(
+                        CityModel(cursor2!!.getInt(
                                 cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_ID)),
                                 cursor2!!.getString(
                                         cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME)
@@ -169,7 +169,7 @@ class MainActivity : AppCompatActivity() {
             cities.clear()
             while (cursor2!!.moveToNext()) {
                 cities.add(
-                        City(cursor2!!.getInt(
+                        CityModel(cursor2!!.getInt(
                                 cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_ID)),
                                 cursor2!!.getString(
                                         cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME)
@@ -227,7 +227,7 @@ class MainActivity : AppCompatActivity() {
                         cursor2!!.moveToPrevious()
                         while (cursor2!!.moveToNext()) {
                             cities.add(
-                                    City(cursor2!!.getInt(cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_ID)),
+                                    CityModel(cursor2!!.getInt(cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_ID)),
                                             cursor2!!.getString(cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME)),
                                             cursor2!!.getString(cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_LATITUDE)),
                                             cursor2!!.getString(cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_LONGITUDE))
@@ -309,7 +309,7 @@ class MainActivity : AppCompatActivity() {
         cities.clear()
         while (cursor2!!.moveToNext()) {
             cities.add(
-                    City(cursor2!!.getInt(
+                    CityModel(cursor2!!.getInt(
                             cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_ID)),
                             cursor2!!.getString(cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME))
                     )
@@ -372,7 +372,7 @@ class MainActivity : AppCompatActivity() {
         cursor!!.moveToPrevious()
         weather.clear()
         while (cursor!!.moveToNext()) {
-            val weathers = Weather()
+            val weathers = WeatherModel()
             weathers.weatherCity = cursor!!.getString(cursor!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY))
             weathers.weatherNow = cursor!!.getDouble(cursor!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_NOW))
             weathers.weatherDate = cursor!!.getLong(cursor!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_DATE))

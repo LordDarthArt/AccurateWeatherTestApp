@@ -1,6 +1,6 @@
 package tk.lorddarthart.accurateweathertestapp.model
 
-class WeatherDay {
+class WeatherDayModel {
     var weather_day: String? = null
     var weather_hight: Double? = null
     var weather_low: Double? = null

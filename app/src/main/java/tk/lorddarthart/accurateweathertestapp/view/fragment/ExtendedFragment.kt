@@ -16,19 +16,11 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.controller.HorizontalRecyclerViewAdapter
-import tk.lorddarthart.accurateweathertestapp.model.WeatherDay
+import tk.lorddarthart.accurateweathertestapp.model.WeatherDayModel
 import tk.lorddarthart.accurateweathertestapp.view.base.BaseFragment
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
-
-private const val WEATHER_DATE = "weatherDate"
-private const val WEATHER_TEXT = "weatherText"
-private const val WEATHER_NOW = "weatherNow"
-private const val WEATHER_CITY = "weatherCity"
-private const val WEATHER_HUMIDITY = "weatherHumidity"
-private const val WEATHER_PRESSURE = "weatherPressure"
-private const val WEATHER_D = "weatherD"
 
 class ExtendedFragment: BaseFragment() {
     private lateinit var txtDay: TextView
@@ -40,7 +32,7 @@ class ExtendedFragment: BaseFragment() {
     private lateinit  var txtPressure: TextView
     private lateinit  var txt3days: TextView
     private lateinit  var txt7days: TextView
-    private lateinit  var finalOutputString: LinkedList<WeatherDay>
+    private lateinit  var finalOutputString: LinkedList<WeatherDayModel>
     private lateinit  var recyclerView: RecyclerView
     private lateinit  var recyclerViewAdapter: HorizontalRecyclerViewAdapter
     private lateinit  var layoutManager: RecyclerView.LayoutManager
@@ -74,7 +66,7 @@ class ExtendedFragment: BaseFragment() {
         initViews()
 
         val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm")
-        val type = object : TypeToken<MutableList<WeatherDay>>() {}.type
+        val type = object : TypeToken<MutableList<WeatherDayModel>>() {}.type
         val gson = Gson()
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mActivity)
         editor = sharedPreferences.edit()
@@ -144,7 +136,7 @@ class ExtendedFragment: BaseFragment() {
             for (i in 0 until it)
                 finalOutputString.add(
                         (gson.fromJson<Any>(arguments?.getString(
-                                "weatherD" + (i + 1)), type) as MutableList<WeatherDay>)[0]
+                                "weatherD" + (i + 1)), type) as MutableList<WeatherDayModel>)[0]
                 )
             // Adding data to List
         }
@@ -175,6 +167,14 @@ class ExtendedFragment: BaseFragment() {
 
     companion object {
         const val TAG = "ExtendedFragment"
+
+        const val WEATHER_DATE = "weatherDate"
+        const val WEATHER_TEXT = "weatherText"
+        const val WEATHER_NOW = "weatherNow"
+        const val WEATHER_CITY = "weatherCity"
+        const val WEATHER_HUMIDITY = "weatherHumidity"
+        const val WEATHER_PRESSURE = "weatherPressure"
+        private const val WEATHER_D = "weatherD"
 
         @JvmStatic
         fun newInstance(mWeatherDate: String, mWeatherText: String,

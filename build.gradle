@@ -11,7 +11,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.0-alpha01'
+        classpath 'com.android.tools.build:gradle:3.6.0-alpha02'
         classpath 'com.google.gms:google-services:4.2.0'
         classpath 'io.fabric.tools:gradle:1.27.0'
         classpath "com.noveogroup.android:check:1.2.5"

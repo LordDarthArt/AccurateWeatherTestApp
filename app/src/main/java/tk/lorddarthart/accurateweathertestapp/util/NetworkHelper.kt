@@ -7,8 +7,8 @@ import com.google.gson.Gson
 
 import org.json.JSONException
 import org.json.JSONObject
-import tk.lorddarthart.accurateweathertestapp.model.Weather
-import tk.lorddarthart.accurateweathertestapp.model.WeatherDay
+import tk.lorddarthart.accurateweathertestapp.model.WeatherModel
+import tk.lorddarthart.accurateweathertestapp.model.WeatherDayModel
 
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -60,7 +60,7 @@ class NetworkHelper {
     }
 
     @Throws(JSONException::class)
-    fun readWeather(stringResponse: String, filterName: String): Weather {
+    fun readWeather(stringResponse: String, filterName: String): WeatherModel {
         val mCalendar = Calendar.getInstance()
         val mDay = mCalendar.get(Calendar.DAY_OF_WEEK)
         val mDayOfWeek = getDayOfWeek(mDay)
@@ -91,7 +91,7 @@ class NetworkHelper {
         val mWeatherDay6 = addWeatherDay(stringResponse, 5)
         val mWeatherDay7 = addWeatherDay(stringResponse, 6)
 
-        return Weather(mWeatherDate, filterName, mWeatherNow, filterName, mWeatherHight, mWeatherLow,
+        return WeatherModel(mWeatherDate, filterName, mWeatherNow, filterName, mWeatherHight, mWeatherLow,
                 mDayOfWeek, mWeatherDescription, mWeatherHumidity, mWeatherPressure, mWeatherSunrise,
                 mWeatherSunset, mWeatherDay1, mWeatherDay2, mWeatherDay3, mWeatherDay4, mWeatherDay5,
                 mWeatherDay6, mWeatherDay7)
@@ -149,8 +149,8 @@ class NetworkHelper {
                     getJSONObject(i).get("date_ts") as Int as Long * 1000)
             val sdf2 = SimpleDateFormat("EEE")
             val dayOfTheWeek = sdf2.format(d)
-            val mWeatherDayList = LinkedList<WeatherDay>()
-            mWeatherDayList.add(WeatherDay(dayOfTheWeek,
+            val mWeatherDayList = LinkedList<WeatherDayModel>()
+            mWeatherDayList.add(WeatherDayModel(dayOfTheWeek,
                     Double.parseDouble((JSONObject(stringResponse).getJSONArray("forecasts")
                             .getJSONObject(i).getJSONObject("parts").getJSONObject("day")
                             .get("temp_max") as Int).toString()),
@@ -170,8 +170,8 @@ class NetworkHelper {
     }
 
     @Throws(JSONException::class)
-    private fun readWeatherArray(array: String, city: String): List<Weather> {
-        val tasks = ArrayList<Weather>()
+    private fun readWeatherArray(array: String, city: String): List<WeatherModel> {
+        val tasks = ArrayList<WeatherModel>()
 
         tasks.add(readWeather(array, city))
         return tasks

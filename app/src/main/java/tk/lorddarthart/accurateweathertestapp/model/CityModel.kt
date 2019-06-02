@@ -1,6 +1,6 @@
 package tk.lorddarthart.accurateweathertestapp.model
 
-class City {
+class CityModel {
     var id: Int? = null
     var cityName: String? = null
     var latitude: String? = null
