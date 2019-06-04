@@ -7,7 +7,9 @@ interface ModelViewPresenter {
 
     interface FragmentView {
         fun initViews()
-        fun initVariables()
+        fun initAnimations()
+        fun initLists()
+        fun initialization()
         fun setContent()
         fun animateFab()
         fun onClick()
@@ -16,13 +18,11 @@ interface ModelViewPresenter {
         fun showLoading()
         suspend fun netOps(mCity: String, latitude: String, longitude: String)
         fun syncResult()
+        fun optionItemSelected(item: MenuItem)
     }
 
     interface MainActivityView {
-        fun initViews()
-        fun initAnimations()
+        fun initFragment()
         fun setContent()
-        fun animateFab()
-        fun optionItemSelected(item: MenuItem)
     }
 }

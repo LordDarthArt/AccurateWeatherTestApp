@@ -217,7 +217,7 @@ class ExtendedFragment: BaseFragment() {
                         putDouble(WEATHER_HUMIDITY, mWeatherHumidity)
                         putDouble(WEATHER_PRESSURE, mWeatherPressure)
                         for (i in 0 until 7) {
-                            putString("$WEATHER_D$i", mWeatherDayArray[i])
+                            putString("$WEATHER_D${i+1}", mWeatherDayArray[i])
                         }
                     }
                 }

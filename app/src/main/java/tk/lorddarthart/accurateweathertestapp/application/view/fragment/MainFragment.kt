@@ -2,13 +2,17 @@ package tk.lorddarthart.accurateweathertestapp.application.view.fragment
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.SharedPreferences
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.constraint.ConstraintLayout
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
@@ -17,13 +21,13 @@ import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import android.widget.ImageView
+import android.widget.*
 import kotlinx.coroutines.*
 import org.jetbrains.anko.design.longSnackbar
 import org.json.JSONException
@@ -48,17 +52,17 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
 
     private lateinit var mSqLiteDatabase: SQLiteDatabase
     private lateinit var mDatabaseHelper: WeatherDatabaseHelper
-    private lateinit var geocoder: Geocoder
+    private lateinit var mGeocoder: Geocoder
     private lateinit var httpServiceHelper: NetworkHelper
     private lateinit var weather: MutableList<WeatherModel>
     private var cursor: Cursor? = null
     private var cursor2: Cursor? = null
-    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var mSharedPreferences: SharedPreferences
     internal var opening = 0
     internal var opening2 = 0
-    private lateinit var addresses: List<Address>
-    private lateinit var cities: MutableList<CityModel>
-    //private var isOpen = false
+    private lateinit var mAdresses: List<Address>
+    private lateinit var mCities: MutableList<CityModel>
+    private var isOpen = false
     var responseCode: Int = 0
 
     // Visual
@@ -80,8 +84,7 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mView = inflater.inflate(R.layout.fragment_main, container, false)
 
-        initViews()
-        initVariables()
+        initialization()
         setContent()
 
         return mView
@@ -95,34 +98,33 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
             editText = findViewById(R.id.editText)
             mRecyclerView = findViewById(R.id.recyclerView)
         }
-        rotateForward = AnimationUtils.loadAnimation(mActivity, R.anim.rotate_forward)
-        rotateBackward = AnimationUtils.loadAnimation(mActivity, R.anim.rotate_backward)
-        consLayOpen = AnimationUtils.loadAnimation(mActivity, R.anim.conslay_open)
-        consLayClose = AnimationUtils.loadAnimation(mActivity, R.anim.conslay_close)
-        tvOpen = AnimationUtils.loadAnimation(mActivity, R.anim.tv_open)
-        tvClose = AnimationUtils.loadAnimation(mActivity, R.anim.tv_close)
-        cities = mutableListOf()
+    }
+
+    override fun initAnimations() {
+            rotateForward = AnimationUtils.loadAnimation(mActivity, R.anim.rotate_forward)
+            rotateBackward = AnimationUtils.loadAnimation(mActivity, R.anim.rotate_backward)
+            consLayOpen = AnimationUtils.loadAnimation(mActivity, R.anim.conslay_open)
+            consLayClose = AnimationUtils.loadAnimation(mActivity, R.anim.conslay_close)
+            tvOpen = AnimationUtils.loadAnimation(mActivity, R.anim.tv_open)
+            tvClose = AnimationUtils.loadAnimation(mActivity, R.anim.tv_close)
+    }
+
+    override fun initLists() {
+        mCities = mutableListOf()
         weather = mutableListOf()
     }
 
-    override fun initVariables() {
-        sharedPreferences = mActivity.mSharedPreferences
-        geocoder = mActivity.mGeocoder
-        mDatabaseHelper = mActivity.mDatabaseHelper
-        mSqLiteDatabase = mActivity.mSqLiteDatabase
-//        consLayText = mActivity.consLayText
-//        constraintLayout = mActivity.constraintLayout
-//        fab = mActivity.fab
-//        consLayOpen = mActivity.consLayOpen
-//        consLayClose = mActivity.consLayClose
-//        rotateForward = mActivity.rotateForward
-//        rotateBackward = mActivity.rotateBackward
-//        tvOpen = mActivity.tvOpen
-//        tvClose = mActivity.tvClose
+    override fun initialization() {
+        initViews()
+        initAnimations()
+        initLists()
     }
 
     override fun setContent() {
-        //mDatabaseHelper = WeatherDatabaseHelper(mActivity)
+        mGeocoder = Geocoder(mActivity)
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mActivity)
+        mDatabaseHelper = WeatherDatabaseHelper(mActivity, WeatherDatabaseHelper.DATABASE_NAME, null, WeatherDatabaseHelper.DATABASE_VERSION)
+        mSqLiteDatabase = mDatabaseHelper.writableDatabase
         constraintLayout.visibility = View.VISIBLE
         cursor = mSqLiteDatabase.rawQuery(getQuery(), arrayOfNulls(0))
         layoutManager = LinearLayoutManager(mActivity)
@@ -134,14 +136,14 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
         consLayClose = AnimationUtils.loadAnimation(mActivity, R.anim.conslay_close)
         tvOpen = AnimationUtils.loadAnimation(mActivity, R.anim.tv_open)
         tvClose = AnimationUtils.loadAnimation(mActivity, R.anim.tv_close)
-        if (sharedPreferences.getBoolean("mCities", false)) {
+        if (mSharedPreferences.getBoolean("mCities", false)) {
             val citiesQuery = "SELECT * FROM " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY
             cursor2 = mSqLiteDatabase.rawQuery(citiesQuery, arrayOfNulls(0))
             cursor2!!.moveToFirst()
             cursor2!!.moveToPrevious()
-            cities.clear()
+            mCities.clear()
             while (cursor2!!.moveToNext()) {
-                cities.add(
+                mCities.add(
                         CityModel(cursor2!!.getInt(
                                 cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_ID)),
                                 cursor2!!.getString(
@@ -154,10 +156,10 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
             }
         } else {
             try {
-                addresses = geocoder.getFromLocationName("Санкт-Петербург", 1)
-                if (addresses.isNotEmpty()) {
-                    val latitude = addresses[0].latitude
-                    val longitude = addresses[0].longitude
+                mAdresses = mGeocoder.getFromLocationName("Санкт-Петербург", 1)
+                if (mAdresses.isNotEmpty()) {
+                    val latitude = mAdresses[0].latitude
+                    val longitude = mAdresses[0].longitude
                     val addCitiesQuery = "INSERT INTO " +
                             WeatherDatabaseHelper.DATABASE_WEATHER_CITY + " (" +
                             WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME + ", " +
@@ -171,10 +173,10 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
             }
 
             try {
-                addresses = geocoder.getFromLocationName("Москва", 1)
-                if (addresses.isNotEmpty()) {
-                    val latitude = addresses[0].latitude
-                    val longitude = addresses[0].longitude
+                mAdresses = mGeocoder.getFromLocationName("Москва", 1)
+                if (mAdresses.isNotEmpty()) {
+                    val latitude = mAdresses[0].latitude
+                    val longitude = mAdresses[0].longitude
                     val addCitiesQuery = "INSERT INTO " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY +
                             " (" + WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME + ", " +
                             WeatherDatabaseHelper.WEATHER_CITY_LATITUDE + ", " +
@@ -186,14 +188,14 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-            sharedPreferences.edit().putBoolean("mCities", true).apply()
+            mSharedPreferences.edit().putBoolean("mCities", true).apply()
             val citiesQuery = "SELECT * FROM " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY
             cursor2 = mSqLiteDatabase.rawQuery(citiesQuery, arrayOfNulls(0))
             cursor2!!.moveToFirst()
             cursor2!!.moveToPrevious()
-            cities.clear()
+            mCities.clear()
             while (cursor2!!.moveToNext()) {
-                cities.add(
+                mCities.add(
                         CityModel(cursor2!!.getInt(
                                 cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_ID)),
                                 cursor2!!.getString(
@@ -226,10 +228,10 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
                         animateFab()
                         fab.setOnClickListener { onClick() }
                         try {
-                            addresses = geocoder.getFromLocationName(editText.text.toString(), 1)
-                            if (addresses.isNotEmpty()) {
-                                val latitude = addresses[0].latitude.toString()
-                                val longitude = addresses[0].longitude.toString()
+                            mAdresses = mGeocoder.getFromLocationName(editText.text.toString(), 1)
+                            if (mAdresses.isNotEmpty()) {
+                                val latitude = mAdresses[0].latitude.toString()
+                                val longitude = mAdresses[0].longitude.toString()
                                 val sql = "Insert into " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY +
                                         " (" + WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME + ", " +
                                         WeatherDatabaseHelper.WEATHER_CITY_LATITUDE + ", " +
@@ -251,7 +253,7 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
                         cursor2!!.moveToFirst()
                         cursor2!!.moveToPrevious()
                         while (cursor2!!.moveToNext()) {
-                            cities.add(
+                            mCities.add(
                                     CityModel(cursor2!!.getInt(cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_ID)),
                                             cursor2!!.getString(cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME)),
                                             cursor2!!.getString(cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_LATITUDE)),
@@ -263,10 +265,10 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
                         opening2 = 0
                         mRecyclerView.visibility = View.INVISIBLE
                         try {
-                            for (cycle in 0 until cities.size) {
+                            for (cycle in 0 until mCities.size) {
                                 showLoading()
                                 runBlocking {
-                                    netOps(cities[i].mCityName!!, cities[i].mLatitude!!, cities[i].mLongitude!!)
+                                    netOps(mCities[i].mCityName!!, mCities[i].mLatitude!!, mCities[i].mLongitude!!)
                                     syncResult()
                                 }
                             }
@@ -286,10 +288,10 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
             }
         })
         try {
-            for (i in cities.indices) {
-                showLoading()
-                runBlocking {
-                    netOps(cities[i].mCityName!!, cities[i].mLatitude!!, cities[i].mLongitude!!)
+            for (i in mCities.indices) {
+                GlobalScope.launch(Dispatchers.Main) {
+                    showLoading()
+                    netOps(mCities[i].mCityName!!, mCities[i].mLatitude!!, mCities[i].mLongitude!!)
                     syncResult()
                 }
             }
@@ -299,12 +301,25 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
     }
 
     override fun animateFab() {
-        mActivity.animateFab()
-    }
-
-    override fun onStop() {
-        super.onStop()
-//        TaskLoader.cancel()
+        if (isOpen) {
+            fab.startAnimation(rotateForward)
+            consLayText.startAnimation(tvClose)
+            consLayText.isClickable = false
+            consLayText.visibility = View.GONE
+            constraintLayout.startAnimation(consLayClose)
+            constraintLayout.isClickable = false
+            constraintLayout.visibility = View.GONE
+            isOpen = false
+        } else {
+            fab.startAnimation(rotateBackward)
+            consLayText.startAnimation(tvOpen)
+            consLayText.isClickable = true
+            consLayText.visibility = View.VISIBLE
+            constraintLayout.isClickable = true
+            constraintLayout.setColorFilter(Color.argb(150, 155, 155, 155), PorterDuff.Mode.DARKEN)
+            constraintLayout.startAnimation(consLayOpen)
+            isOpen = true
+        }
     }
 
     fun getCurrentForecast() {
@@ -440,12 +455,87 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
 
     override fun syncResult() {
         opening2++
-        if (opening2 == cities.size) {
+        if (opening2 == mCities.size) {
             cursor = mSqLiteDatabase.rawQuery(getQuery(), arrayOfNulls(0))
             getCurrentForecast()
             dialog!!.dismiss()
             mRecyclerView.visibility = View.VISIBLE
             constraintLayout.visibility = View.GONE
         }
+    }
+
+    @SuppressLint("Recycle", "InflateParams")
+    override fun optionItemSelected(item: MenuItem) {
+        val container = LinearLayout(mActivity)
+        container.orientation = LinearLayout.VERTICAL
+        val changes = arrayOf(0)
+        val citiesQuery = "SELECT * FROM " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY
+        cursor2 = mSqLiteDatabase.rawQuery(citiesQuery, arrayOfNulls(0))
+        cursor2!!.moveToFirst()
+        cursor2!!.moveToPrevious()
+        mCities.clear()
+        while (cursor2!!.moveToNext()) {
+            mCities.add(
+                    CityModel(cursor2!!.getInt(
+                            cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_ID)),
+                            cursor2!!.getString(cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME))
+                    )
+            )
+        }
+        for (i in mCities.indices) {
+            val holder = layoutInflater.inflate(R.layout.settings_city, null, false)
+            val textViewCity = holder.findViewById<TextView>(R.id.tvCity)
+            textViewCity.text = mCities[i].mCityName
+            val img = holder.findViewById<ImageView>(R.id.ivDelCity)
+            img.setOnClickListener {
+                try {
+                    val query = "DELETE from " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY + " WHERE " + WeatherDatabaseHelper.WEATHER_FILTERNAME + " = \"" + textViewCity.text.toString() + "\""
+                    val query2 = "DELETE from " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY + " WHERE " + WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME + " = \"" + textViewCity.text.toString() + "\""
+                    mSqLiteDatabase.execSQL(query)
+                    mSqLiteDatabase.execSQL(query2)
+                    textViewCity.visibility = View.GONE
+                    img.visibility = View.GONE
+                    changes[0]++
+                } catch (e: Exception) {
+                    e.message?.let { errorMessage ->
+                        longSnackbar(mActivity.findViewById(android.R.id.content), errorMessage).show()
+                    }
+                }
+            }
+            container.addView(holder)
+        }
+        val builder = AlertDialog.Builder(mActivity)
+                .setTitle("Текущие города")
+                .setPositiveButton(android.R.string.ok, null)
+                .setCancelable(false)
+                .setView(container)
+                .create()
+        when (item.itemId) {
+            R.id.action_setcity -> {
+                builder.setOnShowListener {
+                    val button = builder.getButton(AlertDialog.BUTTON_POSITIVE)
+                    button.setOnClickListener {
+                        try {
+                            builder.dismiss()
+                            if (changes[0] > 0) {
+                                mActivity.recreate()
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+
+                builder.setOnDismissListener { }
+            }
+        }
+        builder.show()
+    }
+
+    companion object {
+        const val TAG = "MainFragment"
+
+        @JvmStatic
+        fun newInstance() = MainFragment
     }
 }
