@@ -1,4 +1,4 @@
-package tk.lorddarthart.accurateweathertestapp.util
+package tk.lorddarthart.accurateweathertestapp.util.tools
 
 import android.os.AsyncTask
 

@@ -1,4 +1,4 @@
-package tk.lorddarthart.accurateweathertestapp.view.fragment
+package tk.lorddarthart.accurateweathertestapp.application.view.fragment
 
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
@@ -15,9 +15,9 @@ import android.widget.TextView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import tk.lorddarthart.accurateweathertestapp.R
-import tk.lorddarthart.accurateweathertestapp.adapter.HorizontalRecyclerViewAdapter
-import tk.lorddarthart.accurateweathertestapp.model.WeatherDayModel
-import tk.lorddarthart.accurateweathertestapp.view.base.BaseFragment
+import tk.lorddarthart.accurateweathertestapp.util.adapter.HorizontalRecyclerViewAdapter
+import tk.lorddarthart.accurateweathertestapp.application.model.WeatherDayModel
+import tk.lorddarthart.accurateweathertestapp.application.view.base.BaseFragment
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*

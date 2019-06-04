@@ -1,4 +1,4 @@
-package tk.lorddarthart.accurateweathertestapp.model
+package tk.lorddarthart.accurateweathertestapp.application.model
 
 class WeatherDayModel {
     var weather_day: String? = null
@@ -13,7 +13,5 @@ class WeatherDayModel {
         this.weather_text = weather_text
     }
 
-    constructor() {
-
-    }
+    constructor()
 }

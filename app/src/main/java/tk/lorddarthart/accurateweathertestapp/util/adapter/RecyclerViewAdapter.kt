@@ -1,4 +1,4 @@
-package tk.lorddarthart.accurateweathertestapp.adapter
+package tk.lorddarthart.accurateweathertestapp.util.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -8,8 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import tk.lorddarthart.accurateweathertestapp.R
-import tk.lorddarthart.accurateweathertestapp.model.WeatherModel
-import tk.lorddarthart.accurateweathertestapp.util.OnItemTouchListener
+import tk.lorddarthart.accurateweathertestapp.application.model.WeatherModel
+import tk.lorddarthart.accurateweathertestapp.util.tools.OnItemTouchListener
 
 import java.text.SimpleDateFormat
 import java.util.Date

@@ -1,4 +1,4 @@
-package tk.lorddarthart.accurateweathertestapp.converter
+package tk.lorddarthart.accurateweathertestapp.util.converter
 
 import java.text.SimpleDateFormat
 import java.util.*

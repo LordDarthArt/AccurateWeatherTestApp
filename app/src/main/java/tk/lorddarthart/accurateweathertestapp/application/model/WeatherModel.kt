@@ -1,4 +1,4 @@
-package tk.lorddarthart.accurateweathertestapp.model
+package tk.lorddarthart.accurateweathertestapp.application.model
 
 class WeatherModel {
     var weatherDate: Long = 0

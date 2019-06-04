@@ -16,7 +16,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         android:fullBackupContent="@xml/backup_descriptor">
-        <activity android:name=".view.activity.MainActivity">
+        <activity android:name="tk.lorddarthart.accurateweathertestapp.application.view.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

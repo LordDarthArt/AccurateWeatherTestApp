@@ -1,16 +1,18 @@
-package tk.lorddarthart.accurateweathertestapp.util
+package tk.lorddarthart.accurateweathertestapp.util.tools
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import org.json.JSONException
-import tk.lorddarthart.accurateweathertestapp.model.WeatherModel
+import tk.lorddarthart.accurateweathertestapp.application.model.WeatherModel
 import java.io.IOException
 import java.io.InputStream
 
 interface Network {
     @Throws(IOException::class, JSONException::class)
     // Getting current forecast
-    fun getForecast(mSqLiteDatabase: SQLiteDatabase, city: String, latitude: String, longitude: String): Int
+    fun getForecast(mSqLiteDatabase: SQLiteDatabase, context: Context, city: String,
+                    latitude: String, longitude: String): Int
 
     @Throws(JSONException::class)
     fun readWeather(stringResponse: String, filterName: String): WeatherModel // Getting weather
@@ -22,5 +24,6 @@ interface Network {
     fun addWeatherDay(stringResponse: String, i: Int): String // Adding day to forecasts
 
     @Throws(JSONException::class)
-    fun readWeatherArray(array: String, city: String): List<WeatherModel> // Getting forecasts package
+    // Getting forecasts package
+    fun readWeatherArray(array: String, city: String): List<WeatherModel>
 }

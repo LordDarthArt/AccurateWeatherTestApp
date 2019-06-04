@@ -1,20 +1,21 @@
-package tk.lorddarthart.accurateweathertestapp.util
+package tk.lorddarthart.accurateweathertestapp.util.tools
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 
 import com.google.gson.Gson
 
 import org.json.JSONException
 import org.json.JSONObject
-import tk.lorddarthart.accurateweathertestapp.converter.MainConverter
-import tk.lorddarthart.accurateweathertestapp.model.WeatherModel
-import tk.lorddarthart.accurateweathertestapp.model.WeatherDayModel
+import tk.lorddarthart.accurateweathertestapp.R
+import tk.lorddarthart.accurateweathertestapp.util.converter.MainConverter
+import tk.lorddarthart.accurateweathertestapp.application.model.WeatherModel
+import tk.lorddarthart.accurateweathertestapp.application.model.WeatherDayModel
 
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
-import kotlin.Double
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.SimpleDateFormat
@@ -26,22 +27,31 @@ import java.util.LinkedList
 class NetworkHelper: Network {
 
     @Throws(IOException::class, JSONException::class)
-    override fun getForecast(mSqLiteDatabase: SQLiteDatabase, city: String, latitude: String, longitude: String): Int {
-        val url = "https://api.weather.yandex.ru/v1/forecast?lat=$latitude&lon=$longitude&lang=ru_RU"
+    override fun getForecast(mSqLiteDatabase: SQLiteDatabase, context: Context,
+                             city: String, latitude: String, longitude: String): Int {
+        val url =
+                "https://api.weather.yandex.ru/v1/forecast?lat=$latitude&lon=$longitude&lang=ru_RU"
 
         val obj = URL(url)
         val con = obj.openConnection() as HttpURLConnection
         con.requestMethod = "GET"
 
-        con.setRequestProperty("connection", "keep-alive")
-        con.setRequestProperty("content-type", "application/octet-stream")
-        con.setRequestProperty("X-Yandex-API-Key", "0b7449ae-2807-4618-9afe-6781f963e8a4")
+        con.setRequestProperty("connection",
+                context.resources.getString(R.string.requestPropertyConnection)
+        )
+        con.setRequestProperty("content-type",
+                context.resources.getString(R.string.requestPropertyContentType)
+
+        )
+        con.setRequestProperty("X-Yandex-API-Key",
+                context.resources.getString(R.string.requestPropertyYandexKey)
+        )
         con.connectTimeout = 10000
         con.readTimeout = 10000
 
         val responseCode = con.responseCode
 
-        if (responseCode != 401) {
+        if (responseCode != 401 && responseCode != 403) {
             val inputStream = con.inputStream
             val stringResponse = inputStreamToString(inputStream)
 
@@ -114,7 +124,7 @@ class NetworkHelper: Network {
     override fun addWeatherDay(stringResponse: String, i: Int): String {
         try {
             val d = Date(JSONObject(stringResponse).getJSONArray("forecasts").
-                    getJSONObject(i).get("date_ts") as Int as Long * 1000)
+                    getJSONObject(i).get("date_ts") as Long * 1000)
             val sdf2 = SimpleDateFormat("EEE")
             val dayOfTheWeek = sdf2.format(d)
             val mWeatherDayList = LinkedList<WeatherDayModel>()

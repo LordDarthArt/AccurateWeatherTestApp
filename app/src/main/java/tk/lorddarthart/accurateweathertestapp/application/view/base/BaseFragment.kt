@@ -1,10 +1,10 @@
-package tk.lorddarthart.accurateweathertestapp.view.base
+package tk.lorddarthart.accurateweathertestapp.application.view.base
 
 import android.content.Context
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.View
-import tk.lorddarthart.accurateweathertestapp.view.activity.MainActivity
+import tk.lorddarthart.accurateweathertestapp.application.view.activity.MainActivity
 
 open class BaseFragment : Fragment() {
     lateinit var mView: View
