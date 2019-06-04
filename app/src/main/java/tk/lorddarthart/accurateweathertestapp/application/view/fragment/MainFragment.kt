@@ -8,9 +8,7 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.location.Address
 import android.location.Geocoder
-import android.os.AsyncTask
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.support.constraint.ConstraintLayout
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
@@ -28,8 +26,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import kotlinx.coroutines.*
 import org.jetbrains.anko.design.longSnackbar
-import org.jetbrains.anko.design.snackbar
-import org.jetbrains.anko.support.v4.progressDialog
 import org.json.JSONException
 import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.application.model.CityModel
@@ -39,7 +35,6 @@ import tk.lorddarthart.accurateweathertestapp.util.ModelViewPresenter
 import tk.lorddarthart.accurateweathertestapp.util.adapter.RecyclerViewAdapter
 import tk.lorddarthart.accurateweathertestapp.util.tools.NetworkHelper
 import tk.lorddarthart.accurateweathertestapp.util.tools.OnItemTouchListener
-import tk.lorddarthart.accurateweathertestapp.util.tools.TaskLoader
 import tk.lorddarthart.accurateweathertestapp.util.tools.WeatherDatabaseHelper
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -107,11 +102,12 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
         tvOpen = AnimationUtils.loadAnimation(mActivity, R.anim.tv_open)
         tvClose = AnimationUtils.loadAnimation(mActivity, R.anim.tv_close)
         cities = mutableListOf()
+        weather = mutableListOf()
     }
 
     override fun initVariables() {
-        sharedPreferences = mActivity.sharedPreferences
-        geocoder = mActivity.geocoder
+        sharedPreferences = mActivity.mSharedPreferences
+        geocoder = mActivity.mGeocoder
         mDatabaseHelper = mActivity.mDatabaseHelper
         mSqLiteDatabase = mActivity.mSqLiteDatabase
 //        consLayText = mActivity.consLayText
@@ -138,7 +134,7 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
         consLayClose = AnimationUtils.loadAnimation(mActivity, R.anim.conslay_close)
         tvOpen = AnimationUtils.loadAnimation(mActivity, R.anim.tv_open)
         tvClose = AnimationUtils.loadAnimation(mActivity, R.anim.tv_close)
-        if (sharedPreferences.getBoolean("cities", false)) {
+        if (sharedPreferences.getBoolean("mCities", false)) {
             val citiesQuery = "SELECT * FROM " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY
             cursor2 = mSqLiteDatabase.rawQuery(citiesQuery, arrayOfNulls(0))
             cursor2!!.moveToFirst()
@@ -190,7 +186,7 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-            sharedPreferences.edit().putBoolean("cities", true).apply()
+            sharedPreferences.edit().putBoolean("mCities", true).apply()
             val citiesQuery = "SELECT * FROM " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY
             cursor2 = mSqLiteDatabase.rawQuery(citiesQuery, arrayOfNulls(0))
             cursor2!!.moveToFirst()

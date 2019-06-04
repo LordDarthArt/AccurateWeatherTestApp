@@ -12,6 +12,7 @@ import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.util.converter.MainConverter
 import tk.lorddarthart.accurateweathertestapp.application.model.WeatherModel
 import tk.lorddarthart.accurateweathertestapp.application.model.WeatherDayModel
+import java.io.BufferedReader
 
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -110,21 +111,25 @@ class NetworkHelper: Network {
 
     @Throws(IOException::class)
     override fun inputStreamToString(inputStream: InputStream): String {
-        ByteArrayOutputStream().use { result ->
-            val buffer = ByteArray(1024)
-            val length = inputStream.read(buffer)
-            while (length != -1) {
-                result.write(buffer, 0, length)
+        val reader = BufferedReader(inputStream.reader())
+        val content = StringBuilder()
+        try {
+            var line = reader.readLine()
+            while (line != null) {
+                content.append(line)
+                line = reader.readLine()
             }
-            return result.toString("UTF-8")
+        } finally {
+            reader.close()
         }
+        return content.toString()
     }
 
     @SuppressLint("SimpleDateFormat")
     override fun addWeatherDay(stringResponse: String, i: Int): String {
         try {
-            val d = Date(JSONObject(stringResponse).getJSONArray("forecasts").
-                    getJSONObject(i).get("date_ts") as Long * 1000)
+            val d = Date((JSONObject(stringResponse).getJSONArray("forecasts")
+                    .getJSONObject(i).get("date_ts") as Int).toLong() * 1000)
             val sdf2 = SimpleDateFormat("EEE")
             val dayOfTheWeek = sdf2.format(d)
             val mWeatherDayList = LinkedList<WeatherDayModel>()

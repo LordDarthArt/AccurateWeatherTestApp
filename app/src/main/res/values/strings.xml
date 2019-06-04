@@ -2,5 +2,5 @@
     <string name="app_name">AccurateWeatherTestApp</string>
     <string name="requestPropertyConnection" translatable="false">keep-alive</string>
     <string name="requestPropertyContentType" translatable="false">application/octet-stream</string>
-    <string name="requestPropertyYandexKey" translatable="false">06a362a9-ef2d-4c96-9667-1fa0c0e1625f</string>
+    <string name="requestPropertyYandexKey" translatable="false">7c6c6935-f33b-4c8f-8dd6-5c8fc46edf7e</string>
 </resources>

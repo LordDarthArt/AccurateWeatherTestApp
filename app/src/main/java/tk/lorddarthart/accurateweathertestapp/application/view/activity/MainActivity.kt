@@ -17,7 +17,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.*
 import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.application.model.CityModel
@@ -30,10 +29,10 @@ class MainActivity: BaseActivity(), ModelViewPresenter.MainActivityView {
 
     lateinit var mSqLiteDatabase: SQLiteDatabase
     lateinit var mDatabaseHelper: WeatherDatabaseHelper
-    lateinit var geocoder: Geocoder
-    lateinit var sharedPreferences: SharedPreferences
+    lateinit var mGeocoder: Geocoder
+    lateinit var mSharedPreferences: SharedPreferences
     var cursor2: Cursor? = null
-    lateinit var cities: MutableList<CityModel>
+    lateinit var mCities: MutableList<CityModel>
     var isOpen = false
 
     lateinit var consLayText: ConstraintLayout
@@ -79,8 +78,8 @@ class MainActivity: BaseActivity(), ModelViewPresenter.MainActivityView {
     override fun setContent() {
         val mainFragment = R.id.mainFragment
 
-        geocoder = Geocoder(this)
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        mGeocoder = Geocoder(this)
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         //
         mDatabaseHelper = WeatherDatabaseHelper(this, WeatherDatabaseHelper.DATABASE_NAME, null, WeatherDatabaseHelper.DATABASE_VERSION)
         mSqLiteDatabase = mDatabaseHelper.writableDatabase
@@ -119,19 +118,19 @@ class MainActivity: BaseActivity(), ModelViewPresenter.MainActivityView {
         cursor2 = mSqLiteDatabase.rawQuery(citiesQuery, arrayOfNulls(0))
         cursor2!!.moveToFirst()
         cursor2!!.moveToPrevious()
-        cities.clear()
+        mCities.clear()
         while (cursor2!!.moveToNext()) {
-            cities.add(
+            mCities.add(
                     CityModel(cursor2!!.getInt(
                             cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_ID)),
                             cursor2!!.getString(cursor2!!.getColumnIndex(WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME))
                     )
             )
         }
-        for (i in cities.indices) {
+        for (i in mCities.indices) {
             val holder = layoutInflater.inflate(R.layout.settings_city, null, false)
             val textViewCity = holder.findViewById<TextView>(R.id.tvCity)
-            textViewCity.text = cities[i].mCityName
+            textViewCity.text = mCities[i].mCityName
             val img = holder.findViewById<ImageView>(R.id.ivDelCity)
             img.setOnClickListener {
                 try {
