@@ -23,16 +23,15 @@
                 android:layout_height="1dp"
                 android:background="@android:color/background_dark"
                 app:layout_constraintBottom_toTopOf="@+id/horizontalRecyclerView"
-                app:layout_constraintEnd_toEndOf="@+id/horizontalRecyclerView"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/horizontalRecyclerView"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintHorizontal_bias="0.498"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">
 
@@ -126,9 +125,18 @@
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:background="@android:color/background_dark"
-                app:layout_constraintEnd_toEndOf="@+id/horizontalRecyclerView"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/horizontalRecyclerView" />
+
+            <View
+                android:id="@+id/view2"
+                android:layout_width="1dp"
+                android:layout_height="0dp"
+                android:background="@android:color/background_dark"
+                app:layout_constraintBottom_toTopOf="@+id/view4"
+                app:layout_constraintStart_toStartOf="@+id/horizontalRecyclerView"
+                app:layout_constraintTop_toBottomOf="@+id/constraintLayout2" />
 
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/constraintLayout"
@@ -179,6 +187,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
                     android:text="TextView"
+                    android:textAlignment="textEnd"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/view5"
                     app:layout_constraintTop_toTopOf="@+id/textView8" />
@@ -203,6 +212,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
                     android:text="TextView"
+                    android:textAlignment="textEnd"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/view5"
                     app:layout_constraintTop_toTopOf="@+id/textView10" />

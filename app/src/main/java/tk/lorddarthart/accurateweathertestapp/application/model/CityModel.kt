@@ -19,6 +19,4 @@ class CityModel: ModelViewPresenter.Model {
         this.mId = mId
         this.mCityName = mCityName
     }
-
-    constructor()
 }

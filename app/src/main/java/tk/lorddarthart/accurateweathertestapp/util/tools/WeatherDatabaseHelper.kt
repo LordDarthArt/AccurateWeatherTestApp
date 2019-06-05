@@ -8,9 +8,9 @@ import android.provider.BaseColumns
 
 class WeatherDatabaseHelper : SQLiteOpenHelper, BaseColumns {
 
-    internal constructor(context: Context) : super(context, DATABASE_NAME, null, DATABASE_VERSION) {}
+    internal constructor(context: Context) : super(context, DATABASE_NAME, null, DATABASE_VERSION)
 
-    constructor(context: Context, name: String, factory: SQLiteDatabase.CursorFactory?, version: Int) : super(context, name, factory, version) {}
+    constructor(context: Context, name: String, factory: SQLiteDatabase.CursorFactory?, version: Int) : super(context, name, factory, version)
 
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(DATABASE_CREATE_WEATHER_SCRIPT)

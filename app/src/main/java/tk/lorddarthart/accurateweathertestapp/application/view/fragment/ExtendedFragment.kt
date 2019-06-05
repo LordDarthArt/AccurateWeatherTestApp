@@ -21,6 +21,7 @@ import tk.lorddarthart.accurateweathertestapp.application.view.base.BaseFragment
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import android.os.Build
 
 class ExtendedFragment: BaseFragment() {
     private lateinit var txtDay: TextView
@@ -70,7 +71,8 @@ class ExtendedFragment: BaseFragment() {
     }
 
     @SuppressLint("SimpleDateFormat", "SetTextI18n")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
         mView = inflater.inflate(R.layout.fragment_extended, container, false)
 
         initViews()
@@ -85,25 +87,34 @@ class ExtendedFragment: BaseFragment() {
             futureForecasts = 7
             editor.apply()
             txt7days.setTextColor(resources.getColor(R.color.colorPrimary))
-            txt3days.setTextColor(Color.parseColor("#808080"))
+            txt3days.setTextColor(resources.getColor(R.color.notSelected))
         } else { // If configured then...
-            if (sharedPreferences.getString("futureForecast", "7days") == "3days") {
+            if (
+                    sharedPreferences.getString("futureForecast", "7days") == "3days"
+            ) {
                 // ...Highlight "3-days" tab
                 futureForecasts = 3
                 txt3days.setTextColor(resources.getColor(R.color.colorPrimary))
-                txt7days.setTextColor(Color.parseColor("#808080"))
-            } else if (sharedPreferences.getString("futureForecast", "7days") == "7days") {
+                txt7days.setTextColor(resources.getColor(R.color.notSelected))
+            } else if (
+                    sharedPreferences.getString("futureForecast", "7days") == "7days"
+            ) {
                 // ...Highlight "7-days" tab
                 futureForecasts = 7
                 txt7days.setTextColor(resources.getColor(R.color.colorPrimary))
-                txt3days.setTextColor(Color.parseColor("#808080"))
+                txt3days.setTextColor(resources.getColor(R.color.notSelected))
             }
         }
-        layoutManager = LinearLayoutManager(mActivity, LinearLayoutManager.HORIZONTAL, false)
+        layoutManager = LinearLayoutManager(
+                mActivity,
+                LinearLayoutManager.HORIZONTAL,
+                false
+        )
         recyclerView.layoutManager = layoutManager
         try {
             txtDay.text = SimpleDateFormat("dd").format(sdf.parse(mWeatherDate))
-            txtMonthYear.text = SimpleDateFormat("MMMM, yyyy").format(sdf.parse(mWeatherDate))
+            txtMonthYear.text =
+                    SimpleDateFormat("MMMM, yyyy").format(sdf.parse(mWeatherDate))
         } catch (e: ParseException) {
             e.printStackTrace()
         }
@@ -126,8 +137,8 @@ class ExtendedFragment: BaseFragment() {
                 editor.putString("futureForecast", "3days")
                 editor.commit()
                 txt3days.setTextColor(resources.getColor(R.color.colorPrimary))
-                txt7days.setTextColor(Color.parseColor("#808080"))
-                //this@PodrobnoActivity.recreate()
+                txt7days.setTextColor(resources.getColor(R.color.notSelected))
+                refreshFragment()
             }
         }
 
@@ -138,17 +149,21 @@ class ExtendedFragment: BaseFragment() {
                 editor.commit()
                 txt7days.setTextColor(resources.getColor(R.color.colorPrimary))
                 txt3days.setTextColor(Color.parseColor("#808080"))
-                //this@PodrobnoActivity.recreate()
-
+                refreshFragment()
             }
         }
         futureForecasts?.let {
-            for (i in 0 until it)
+            for (i in 0 until it) {
                 finalOutputString.add(
-                        (gson.fromJson<Any>(arguments?.getString(
-                                "weatherD" + (i + 1)), type) as MutableList<WeatherDayModel>)[0]
+                        (gson.fromJson<Any>(
+                                arguments?.getString(
+                                        "weatherD" + (i + 1)),
+                                type
+                        ) as MutableList<*>
+                                )[0] as WeatherDayModel
                 )
-            // Adding data to List
+                // Adding data to List
+            }
         }
         recyclerViewAdapter = HorizontalRecyclerViewAdapter(mActivity, finalOutputString)
         recyclerView.adapter = recyclerViewAdapter
@@ -173,6 +188,14 @@ class ExtendedFragment: BaseFragment() {
         } catch (e: Exception) {
             Log.d(TAG, "mView was not initialized")
         }
+    }
+
+    fun refreshFragment() {
+        val ft = fragmentManager!!.beginTransaction()
+        if (Build.VERSION.SDK_INT >= 26) {
+            ft.setReorderingAllowed(false)
+        }
+        ft.detach(this).attach(this).commit()
     }
 
     companion object {
@@ -214,6 +237,11 @@ class ExtendedFragment: BaseFragment() {
                         putString(WEATHER_TEXT, mWeatherText)
                         putDouble(WEATHER_NOW, mWeatherNow)
                         putString(WEATHER_CITY, mWeatherCity)
+                        putDouble(WEATHER_HIGH, mWeatherHigh)
+                        putDouble(WEATHER_LOW, mWeatherLow)
+                        putString(WEATHER_SUNRISE, mWeatherSunrise)
+                        putString(WEATHER_SUNSET, mWeatherSunset)
+                        putString(WEATHER_DESCRIPTION, mWeatherDescription)
                         putDouble(WEATHER_HUMIDITY, mWeatherHumidity)
                         putDouble(WEATHER_PRESSURE, mWeatherPressure)
                         for (i in 0 until 7) {

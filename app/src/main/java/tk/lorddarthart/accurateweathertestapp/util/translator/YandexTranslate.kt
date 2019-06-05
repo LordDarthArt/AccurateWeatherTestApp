@@ -12,7 +12,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 
-class YandexTranslate: TranslatorNetwork {
+class YandexTranslate : TranslatorNetwork {
 
     override fun translateToLocale(context: Context, text: String): String {
         val urlString = translateUrl(context, text)
@@ -59,22 +59,21 @@ class YandexTranslate: TranslatorNetwork {
     override fun inputStreamToString(inputStream: InputStream): String {
         val reader = BufferedReader(inputStream.reader())
         val content = StringBuilder()
-        try {
-            var line = reader.readLine()
+        reader.use { ireader ->
+            var line = ireader.readLine()
             while (line != null) {
                 content.append(line)
-                line = reader.readLine()
+                line = ireader.readLine()
             }
-        } finally {
-            reader.close()
         }
         return content.toString()
     }
 
     @Throws(JSONException::class)
     override fun readTranslation(stringResponse: String): String {
-            return JSONObject(stringResponse).getJSONArray("text")
-                    .get(0) as String
+        val kukareku = JSONObject(stringResponse).getJSONArray("text")
+        return JSONObject(stringResponse).getJSONArray("text")
+                .get(kukareku.length()-1) as String
     }
 
     companion object {

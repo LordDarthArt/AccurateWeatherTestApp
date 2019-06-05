@@ -3,29 +3,23 @@ package tk.lorddarthart.accurateweathertestapp.util.tools
 import android.annotation.SuppressLint
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
-
 import com.google.gson.Gson
-import kotlinx.coroutines.*
-import org.jetbrains.anko.custom.async
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.json.JSONException
 import org.json.JSONObject
 import tk.lorddarthart.accurateweathertestapp.R
-import tk.lorddarthart.accurateweathertestapp.util.converter.MainConverter
-import tk.lorddarthart.accurateweathertestapp.application.model.WeatherModel
 import tk.lorddarthart.accurateweathertestapp.application.model.WeatherDayModel
+import tk.lorddarthart.accurateweathertestapp.application.model.WeatherModel
+import tk.lorddarthart.accurateweathertestapp.util.converter.MainConverter
 import tk.lorddarthart.accurateweathertestapp.util.translator.YandexTranslate
 import java.io.BufferedReader
-
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.SimpleDateFormat
-import java.util.ArrayList
-import java.util.Calendar
-import java.util.Date
-import java.util.LinkedList
+import java.util.*
 
 class NetworkHelper: Network {
 
@@ -115,14 +109,12 @@ class NetworkHelper: Network {
     override fun inputStreamToString(inputStream: InputStream): String {
         val reader = BufferedReader(inputStream.reader())
         val content = StringBuilder()
-        try {
+        reader.use { reader ->
             var line = reader.readLine()
             while (line != null) {
                 content.append(line)
                 line = reader.readLine()
             }
-        } finally {
-            reader.close()
         }
         return content.toString()
     }

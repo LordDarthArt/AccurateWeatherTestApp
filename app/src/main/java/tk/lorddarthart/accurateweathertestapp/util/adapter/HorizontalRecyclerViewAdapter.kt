@@ -28,18 +28,18 @@ internal class HorizontalRecyclerViewAdapter(//Адаптер для созда�
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
         val weatherDay = listWeatherDay[i]
-        if (weatherDay.weather_hight!! > 0) {
-            viewHolder.tempHighDay.text = "+${weatherDay.weather_hight.toString()}"
+        if (weatherDay.mWeatherHigh!! > 0) {
+            viewHolder.tempHighDay.text = "+${weatherDay.mWeatherHigh.toString()}"
         } else {
-            viewHolder.tempHighDay.text = weatherDay.weather_hight.toString()
+            viewHolder.tempHighDay.text = weatherDay.mWeatherHigh.toString()
         }
-        if (weatherDay.weather_low!! > 0.0) {
-            viewHolder.tempLowDay.text = "+${weatherDay.weather_low.toString()}"
+        if (weatherDay.mWeatherLow!! > 0.0) {
+            viewHolder.tempLowDay.text = "+${weatherDay.mWeatherLow.toString()}"
         } else {
-            viewHolder.tempLowDay.text = weatherDay.weather_low.toString()
+            viewHolder.tempLowDay.text = weatherDay.mWeatherLow.toString()
         }
-        viewHolder.descDay.text = weatherDay.weather_text
-        viewHolder.nameDay.text = weatherDay.weather_day
+        viewHolder.descDay.text = weatherDay.mWeatherText
+        viewHolder.nameDay.text = weatherDay.mWeatherDay
 
     }
 
@@ -49,17 +49,10 @@ internal class HorizontalRecyclerViewAdapter(//Адаптер для созда�
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        internal var tempHighDay: TextView
-        internal var tempLowDay: TextView
-        internal var nameDay: TextView
-        internal var descDay: TextView
+        internal var tempHighDay: TextView = itemView.findViewById(R.id.tempHighDay)
+        internal var tempLowDay: TextView = itemView.findViewById(R.id.tempDayLow)
+        internal var nameDay: TextView = itemView.findViewById(R.id.nameDay)
+        internal var descDay: TextView = itemView.findViewById(R.id.descDay)
 
-        init {
-
-            tempHighDay = itemView.findViewById(R.id.tempHighDay)
-            tempLowDay = itemView.findViewById(R.id.tempDayLow)
-            descDay = itemView.findViewById(R.id.descDay)
-            nameDay = itemView.findViewById(R.id.nameDay)
-        }
     }
 }

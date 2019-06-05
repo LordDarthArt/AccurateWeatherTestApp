@@ -1,9 +1,12 @@
 import android.os.AsyncTask
-import android.view.View
 import tk.lorddarthart.accurateweathertestapp.application.view.fragment.MainFragment
-import tk.lorddarthart.accurateweathertestapp.util.tools.WeatherDatabaseHelper
 
-class UpdateForecast(fragment: MainFragment, city: String, latitude: String, longitude: String) : AsyncTask<String, Void, Void>() {
+class UpdateForecast(
+        fragment: MainFragment,
+        city: String,
+        latitude: String,
+        longitude: String
+): AsyncTask<String, Void, Void>() { // This class is no longer usable
 
     override fun onPreExecute() {
     }
