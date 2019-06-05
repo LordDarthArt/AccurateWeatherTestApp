@@ -6,5 +6,6 @@
         android:id="@+id/action_setcity"
         android:orderInCategory="100"
         android:icon="@drawable/ic_baseline_settings_20px"
+        android:title="@string/cities_list"
         app:showAsAction="ifRoom" />
 </menu>

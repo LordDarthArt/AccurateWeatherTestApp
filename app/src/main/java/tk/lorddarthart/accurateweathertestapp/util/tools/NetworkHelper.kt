@@ -5,6 +5,8 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 
 import com.google.gson.Gson
+import kotlinx.coroutines.*
+import org.jetbrains.anko.custom.async
 
 import org.json.JSONException
 import org.json.JSONObject
@@ -12,9 +14,9 @@ import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.util.converter.MainConverter
 import tk.lorddarthart.accurateweathertestapp.application.model.WeatherModel
 import tk.lorddarthart.accurateweathertestapp.application.model.WeatherDayModel
+import tk.lorddarthart.accurateweathertestapp.util.translator.YandexTranslate
 import java.io.BufferedReader
 
-import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -28,7 +30,7 @@ import java.util.LinkedList
 class NetworkHelper: Network {
 
     @Throws(IOException::class, JSONException::class)
-    override fun getForecast(mSqLiteDatabase: SQLiteDatabase, context: Context,
+    override suspend fun getForecast(mSqLiteDatabase: SQLiteDatabase, context: Context,
                              city: String, latitude: String, longitude: String): Int {
         val url =
                 "https://api.weather.yandex.ru/v1/forecast?lat=$latitude&lon=$longitude&lang=ru_RU"
@@ -56,7 +58,7 @@ class NetworkHelper: Network {
             val inputStream = con.inputStream
             val stringResponse = inputStreamToString(inputStream)
 
-            val weathers = readWeatherArray(stringResponse, city)
+            val weathers = readWeatherArray(stringResponse, city, context)
             println(weathers)
             for (weather in weathers) {
                 WeatherDatabaseHelper.addWeather(mSqLiteDatabase, weather.weatherDate,
@@ -72,7 +74,7 @@ class NetworkHelper: Network {
     }
 
     @Throws(JSONException::class)
-    override fun readWeather(stringResponse: String, filterName: String): WeatherModel {
+    override suspend fun readWeather(stringResponse: String, filterName: String, context: Context): WeatherModel {
         val mCalendar = Calendar.getInstance()
         val mDay = mCalendar.get(Calendar.DAY_OF_WEEK)
         val mDayOfWeek = MainConverter.getDayOfWeek(mDay)
@@ -95,13 +97,13 @@ class NetworkHelper: Network {
                 .getJSONObject(0).get("sunrise") as String
         val mWeatherSunset = JSONObject(stringResponse).getJSONArray("forecasts")
                 .getJSONObject(0).get("sunset") as String
-        val mWeatherDay1 = addWeatherDay(stringResponse, 0)
-        val mWeatherDay2 = addWeatherDay(stringResponse, 1)
-        val mWeatherDay3 = addWeatherDay(stringResponse, 2)
-        val mWeatherDay4 = addWeatherDay(stringResponse, 3)
-        val mWeatherDay5 = addWeatherDay(stringResponse, 4)
-        val mWeatherDay6 = addWeatherDay(stringResponse, 5)
-        val mWeatherDay7 = addWeatherDay(stringResponse, 6)
+        val mWeatherDay1 = addWeatherDay(stringResponse, 0, context)
+        val mWeatherDay2 = addWeatherDay(stringResponse, 1, context)
+        val mWeatherDay3 = addWeatherDay(stringResponse, 2, context)
+        val mWeatherDay4 = addWeatherDay(stringResponse, 3, context)
+        val mWeatherDay5 = addWeatherDay(stringResponse, 4, context)
+        val mWeatherDay6 = addWeatherDay(stringResponse, 5, context)
+        val mWeatherDay7 = addWeatherDay(stringResponse, 6, context)
 
         return WeatherModel(mWeatherDate, filterName, mWeatherNow, filterName, mWeatherHight, mWeatherLow,
                 mDayOfWeek, mWeatherDescription, mWeatherHumidity, mWeatherPressure, mWeatherSunrise,
@@ -126,13 +128,14 @@ class NetworkHelper: Network {
     }
 
     @SuppressLint("SimpleDateFormat")
-    override fun addWeatherDay(stringResponse: String, i: Int): String {
+    override suspend fun addWeatherDay(stringResponse: String, i: Int, context: Context): String {
         try {
             val d = Date((JSONObject(stringResponse).getJSONArray("forecasts")
                     .getJSONObject(i).get("date_ts") as Int).toLong() * 1000)
             val sdf2 = SimpleDateFormat("EEE")
             val dayOfTheWeek = sdf2.format(d)
             val mWeatherDayList = LinkedList<WeatherDayModel>()
+            val translator = YandexTranslate()
             mWeatherDayList.add(WeatherDayModel(dayOfTheWeek,
                     ((JSONObject(stringResponse).getJSONArray("forecasts")
                             .getJSONObject(i).getJSONObject("parts").getJSONObject("day")
@@ -140,9 +143,12 @@ class NetworkHelper: Network {
                     ((JSONObject(stringResponse).getJSONArray("forecasts")
                             .getJSONObject(i).getJSONObject("parts").getJSONObject("day")
                             .get("temp_min") as Int).toString()).toDouble(),
-                    JSONObject(stringResponse).getJSONArray("forecasts").getJSONObject(i)
+                    runBlocking(Dispatchers.IO) {
+                        translator.translateToLocale(context, JSONObject(stringResponse).getJSONArray("forecasts").getJSONObject(i)
                             .getJSONObject("parts").getJSONObject("day")
-                            .get("condition") as String))
+                            .get("condition") as String)
+                    }
+            ))
             val gson = Gson()
             return gson.toJson(mWeatherDayList)
         } catch (e: Exception) {
@@ -153,10 +159,10 @@ class NetworkHelper: Network {
     }
 
     @Throws(JSONException::class)
-    override fun readWeatherArray(array: String, city: String): List<WeatherModel> {
+    override suspend fun readWeatherArray(array: String, city: String, context: Context): List<WeatherModel> {
         val tasks = ArrayList<WeatherModel>()
 
-        tasks.add(readWeather(array, city))
+        tasks.add(readWeather(array, city, context))
         return tasks
     }
 }

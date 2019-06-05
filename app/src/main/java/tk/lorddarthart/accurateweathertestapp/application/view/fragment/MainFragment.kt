@@ -44,10 +44,6 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-private const val SQL_SELECT = "SELECT "
-private const val SQL_COMMA = ", "
-private const val SQL_FROM = " FROM "
-
 class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
 
     private lateinit var mSqLiteDatabase: SQLiteDatabase
@@ -534,6 +530,9 @@ class MainFragment : BaseFragment(), ModelViewPresenter.FragmentView {
 
     companion object {
         const val TAG = "MainFragment"
+        const val SQL_SELECT = "SELECT "
+        const val SQL_COMMA = ", "
+        const val SQL_FROM = " FROM "
 
         @JvmStatic
         fun newInstance() = MainFragment

@@ -10,20 +10,21 @@ import java.io.InputStream
 
 interface Network {
     @Throws(IOException::class, JSONException::class)
-    // Getting current forecast
-    fun getForecast(mSqLiteDatabase: SQLiteDatabase, context: Context, city: String,
-                    latitude: String, longitude: String): Int
+    suspend fun getForecast(mSqLiteDatabase: SQLiteDatabase, context: Context, city: String,
+                    latitude: String, longitude: String): Int // Getting current forecast
 
     @Throws(JSONException::class)
-    fun readWeather(stringResponse: String, filterName: String): WeatherModel // Getting weather
+    suspend fun readWeather(stringResponse: String, filterName: String,
+                            context: Context): WeatherModel // Getting weather
 
     @Throws(IOException::class)
     fun inputStreamToString(inputStream: InputStream): String // Decode
 
     @SuppressLint("SimpleDateFormat")
-    fun addWeatherDay(stringResponse: String, i: Int): String // Adding day to forecasts
+    suspend fun addWeatherDay(stringResponse: String, i: Int,
+                              context: Context): String // Adding day to forecasts
 
     @Throws(JSONException::class)
-    // Getting forecasts package
-    fun readWeatherArray(array: String, city: String): List<WeatherModel>
+    suspend fun readWeatherArray(array: String, city: String,
+                                 context: Context): List<WeatherModel> // Getting forecasts package
 }
