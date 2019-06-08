@@ -6,12 +6,14 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import org.jetbrains.anko.design.longSnackbar
 import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.application.model.CityModel
 import tk.lorddarthart.accurateweathertestapp.application.view.activity.MainActivity
+import tk.lorddarthart.accurateweathertestapp.application.view.fragment.MainFragment
 import tk.lorddarthart.accurateweathertestapp.util.tools.WeatherDatabaseHelper
 
 class CitiesListAdapter(
@@ -23,7 +25,8 @@ class CitiesListAdapter(
     private lateinit var mViewHolder: ViewHolder
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ViewHolder {
-        mView = LayoutInflater.from(mContext).inflate(R.layout.settings_city, p0, false)
+        mView = LayoutInflater.from(mContext)
+                .inflate(R.layout.settings_city, p0, false)
         mViewHolder = ViewHolder(mView)
         return mViewHolder
     }
@@ -34,6 +37,8 @@ class CitiesListAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.textViewCity.text = mCitiesList[position].mCityName
+        holder.textViewLatitude.text = mCitiesList[position].mLatitude
+        holder.textViewLongitude.text = mCitiesList[position].mLongitude
         holder.buttonRemoveCity.setOnClickListener {
             try {
                 val query = "DELETE from " +
@@ -46,7 +51,6 @@ class CitiesListAdapter(
                 mSqLiteDatabase.execSQL(query)
                 mSqLiteDatabase.execSQL(query2)
                 holder.citiesListItem.visibility = View.GONE
-                //changes[0]++
             } catch (e: Exception) {
                 e.message?.let { errorMessage ->
                     longSnackbar(
@@ -55,6 +59,10 @@ class CitiesListAdapter(
                 }
             }
         }
+        holder.buttonApply.setOnClickListener {
+            mContext.supportFragmentManager.beginTransaction()
+                    .replace(R.id.mainFragment, MainFragment()).commit()
+        }
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -62,6 +70,7 @@ class CitiesListAdapter(
         val textViewLongitude: TextView = itemView.findViewById(R.id.tvLongitude)
         val textViewLatitude: TextView = itemView.findViewById(R.id.tvLatitude)
         val buttonRemoveCity: ImageView = itemView.findViewById(R.id.ivDelCity)
+        val buttonApply: TextView = itemView.findViewById(R.id.txtBtn)
         val citiesListItem: CardView = itemView.findViewById(R.id.cities_list_item)
     }
 }

@@ -25,7 +25,6 @@ import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.LinearLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -36,7 +35,7 @@ import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.application.model.CityModel
 import tk.lorddarthart.accurateweathertestapp.application.model.WeatherModel
 import tk.lorddarthart.accurateweathertestapp.application.view.base.BaseFragment
-import tk.lorddarthart.accurateweathertestapp.util.adapter.RecyclerViewAdapter
+import tk.lorddarthart.accurateweathertestapp.util.adapter.CitiesForecastsListAdapter
 import tk.lorddarthart.accurateweathertestapp.util.tools.NetworkHelper
 import tk.lorddarthart.accurateweathertestapp.util.tools.OnItemTouchListener
 import tk.lorddarthart.accurateweathertestapp.util.tools.WeatherDatabaseHelper
@@ -482,7 +481,7 @@ class MainFragment : BaseFragment() {
 
             }
         }
-        val recyclerViewAdapter = RecyclerViewAdapter(mActivity, mWeather, itemTouchListener)
+        val recyclerViewAdapter = CitiesForecastsListAdapter(mActivity, mWeather, itemTouchListener)
         mRecyclerView.adapter = recyclerViewAdapter
     }
 

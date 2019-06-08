@@ -26,4 +26,7 @@
     <string name="syncresult_log">Закончил сетевые операции</string>
     <string name="three_days">3 дня</string>
     <string name="today">Сегодня</string>
+    <string name="latitude">Широта</string>
+    <string name="longitude">Долгота</string>
+    <string name="sunrise">Восход:</string>
 </resources>

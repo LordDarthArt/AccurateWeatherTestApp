@@ -14,11 +14,11 @@ import tk.lorddarthart.accurateweathertestapp.util.tools.OnItemTouchListener
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class RecyclerViewAdapter(  //Адаптер для создания карточек с погодой городов на сегодняшний день на главном экране.
+class CitiesForecastsListAdapter(  //Адаптер для создания карточек с погодой городов на сегодняшний день на главном экране.
         private var context: Context,
         private var listWeather: MutableList<WeatherModel>,
         private val onItemTouchListener: OnItemTouchListener
-) : RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<CitiesForecastsListAdapter.ViewHolder>() {
     private lateinit var view: View
     private lateinit var viewHolder: ViewHolder
 

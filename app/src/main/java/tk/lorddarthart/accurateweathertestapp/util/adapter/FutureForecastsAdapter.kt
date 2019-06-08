@@ -10,12 +10,10 @@ import android.widget.TextView
 import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.application.model.WeatherDayModel
 
-import java.util.LinkedList
-
-internal class HorizontalRecyclerViewAdapter(//Адаптер для создания карточек с погодой на неделю в подробном просмотре.
+internal class FutureForecastsAdapter(//Адаптер для создания карточек с погодой на неделю в подробном просмотре.
         var context: Context,
         var listWeatherDay: MutableList<WeatherDayModel>
-) : RecyclerView.Adapter<HorizontalRecyclerViewAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<FutureForecastsAdapter.ViewHolder>() {
     private lateinit var mView: View
     private lateinit var mViewHolder: ViewHolder
 

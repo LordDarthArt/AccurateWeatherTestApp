@@ -11,6 +11,7 @@
     <string name="seven_days">7 days</string>
     <string name="three_days">3 days</string>
     <string name="sunset">Sunset:</string>
+    <string name="sunrise">Sunrise:</string>
     <string name="initviews_log">Initializing views</string>
     <string name="initanims_log">Initializing animations</string>
     <string name="initlists_log">Initializing cities and weathers list</string>
@@ -27,8 +28,8 @@
     <string name="checksharedpreferences_log">Started checking the App\'s SharedPreferences</string>
     <string name="syncresult_log">Finished network operations</string>
     <string name="netops_log">Starting network operations</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="apply">Apply</string>
-    <string name="sync">Synchronizing...</string>
+    <string name="sync">Synchronizing…</string>
+    <string name="longitude">Longitude</string>
+    <string name="latitude">Latitude</string>
 </resources>

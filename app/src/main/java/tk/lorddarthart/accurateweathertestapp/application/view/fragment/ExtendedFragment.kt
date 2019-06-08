@@ -1,7 +1,6 @@
 package tk.lorddarthart.accurateweathertestapp.application.view.fragment
 
 import android.annotation.SuppressLint
-import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -18,7 +17,7 @@ import org.jetbrains.anko.design.longSnackbar
 import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.application.model.WeatherDayModel
 import tk.lorddarthart.accurateweathertestapp.application.view.base.BaseFragment
-import tk.lorddarthart.accurateweathertestapp.util.adapter.HorizontalRecyclerViewAdapter
+import tk.lorddarthart.accurateweathertestapp.util.adapter.FutureForecastsAdapter
 import java.lang.reflect.Type
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -26,7 +25,7 @@ import java.text.SimpleDateFormat
 class ExtendedFragment : BaseFragment() {
     // Tools
     private lateinit var futureForecastsList: MutableList<WeatherDayModel>
-    private lateinit var recyclerViewAdapter: HorizontalRecyclerViewAdapter
+    private lateinit var recyclerViewAdapter: FutureForecastsAdapter
     private lateinit var layoutManager: RecyclerView.LayoutManager
     private var futureForecasts: Int? = null // Days-to-display value
     private lateinit var sdf: SimpleDateFormat
@@ -244,7 +243,7 @@ class ExtendedFragment : BaseFragment() {
                 // Adding data to List
             }
         }
-        recyclerViewAdapter = HorizontalRecyclerViewAdapter(mActivity, futureForecastsList)
+        recyclerViewAdapter = FutureForecastsAdapter(mActivity, futureForecastsList)
         recyclerView.adapter = recyclerViewAdapter
     }
 
