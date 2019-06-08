@@ -6,7 +6,7 @@ class UpdateForecast(
         city: String,
         latitude: String,
         longitude: String
-): AsyncTask<String, Void, Void>() { // This class is no longer usable
+): AsyncTask<String, Void, Void>() { // This class is no longer useful
 
     override fun onPreExecute() {
     }

@@ -2,9 +2,14 @@
   <dictionary name="LordDarthArt">
     <words>
       <w>adresses</w>
+      <w>filtername</w>
       <w>geocoder</w>
+      <w>gson</w>
       <w>ireader</w>
+      <w>mmmm</w>
       <w>textfield</w>
+      <w>textview</w>
+      <w>yandex</w>
     </words>
   </dictionary>
 </component>

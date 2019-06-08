@@ -2,4 +2,28 @@
 <resources>
     <string name="app_name">Погода</string>
     <string name="cities_list">Список городов</string>
+    <string name="apply">Применить</string>
+    <string name="checksharedpreferences_log">Проверяем SharedPreferences приложения</string>
+    <string name="content_log">Инициализация выполнена, идёт подготовка контента</string>
+    <string name="fabclose_log">Пытаюсь закрыть FloatingActionButton с плавающим EditText</string>
+    <string name="fabopen_log">Пытаюсь открыть FloatingActionButton с плавающим EditText</string>
+    <string name="finishingsetcontent_log">Начато завершение установки контента</string>
+    <string name="gettingforecast_log">Получаю погодную модель на сегодняшний день</string>
+    <string name="humidity">Влажность:</string>
+    <string name="init_log">Начинаю инициализацию</string>
+    <string name="initadapter_log">Инициализирую адаптер</string>
+    <string name="initanims_log">Инициализирую анимации</string>
+    <string name="initlisteners_log">Инициализация лисенеров</string>
+    <string name="initlists_log">Инициализация городского и погодного списков</string>
+    <string name="inittools_log">Инициализация инструментов</string>
+    <string name="initviews_log">Инициализация визуальщины</string>
+    <string name="netops_log">Начинаю сетевые операции</string>
+    <string name="pressure">Давление:</string>
+    <string name="seven_days">7 дней</string>
+    <string name="spinner_loading">Отображаю кольцо загрузки</string>
+    <string name="sunset">Заход:</string>
+    <string name="sync">Синхронизация…</string>
+    <string name="syncresult_log">Закончил сетевые операции</string>
+    <string name="three_days">3 дня</string>
+    <string name="today">Сегодня</string>
 </resources>

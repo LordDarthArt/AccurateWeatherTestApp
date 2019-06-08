@@ -109,11 +109,11 @@ class NetworkHelper: Network {
     override fun inputStreamToString(inputStream: InputStream): String {
         val reader = BufferedReader(inputStream.reader())
         val content = StringBuilder()
-        reader.use { reader ->
-            var line = reader.readLine()
+        reader.use { ireader ->
+            var line = ireader.readLine()
             while (line != null) {
                 content.append(line)
-                line = reader.readLine()
+                line = ireader.readLine()
             }
         }
         return content.toString()

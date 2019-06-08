@@ -4,4 +4,31 @@
     <string name="requestPropertyContentType" translatable="false">application/octet-stream</string>
     <string name="requestPropertyYandexKey" translatable="false">7c6c6935-f33b-4c8f-8dd6-5c8fc46edf7e</string>
     <string name="cities_list">Cities List</string>
+    <string name="textview" translatable="false">TextView</string>
+    <string name="today">Today:</string>
+    <string name="humidity">Humidity:</string>
+    <string name="pressure">Pressure:</string>
+    <string name="seven_days">7 days</string>
+    <string name="three_days">3 days</string>
+    <string name="sunset">Sunset:</string>
+    <string name="initviews_log">Initializing views</string>
+    <string name="initanims_log">Initializing animations</string>
+    <string name="initlists_log">Initializing cities and weathers list</string>
+    <string name="init_log">Starting initialization</string>
+    <string name="content_log">Initialization is complete, preparing the content</string>
+    <string name="inittools_log">Initializing tools</string>
+    <string name="initlisteners_log">Listeners initialization</string>
+    <string name="fabopen_log">Trying to open FloatingActionButton with floating EditText</string>
+    <string name="fabclose_log">Trying to close FloatingActionButton with floating EditText</string>
+    <string name="gettingforecast_log">Getting the current day weather model</string>
+    <string name="initadapter_log">Initializing adapter</string>
+    <string name="spinner_loading">Showing loading spinner</string>
+    <string name="finishingsetcontent_log">Started finishing the content setting</string>
+    <string name="checksharedpreferences_log">Started checking the App\'s SharedPreferences</string>
+    <string name="syncresult_log">Finished network operations</string>
+    <string name="netops_log">Starting network operations</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="apply">Apply</string>
+    <string name="sync">Synchronizing...</string>
 </resources>

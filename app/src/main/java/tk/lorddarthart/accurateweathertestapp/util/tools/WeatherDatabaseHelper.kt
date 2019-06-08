@@ -22,12 +22,13 @@ class WeatherDatabaseHelper : SQLiteOpenHelper, BaseColumns {
     }
 
     companion object {
+
         const val DATABASE_NAME = "tk.lorddarthart.accurateweathertestappweather.db"
         var DATABASE_VERSION = 1
 
         const val DATABASE_WEATHER = "weather"
         const val WEATHER_FILTERNAME = "weatherFilterName"
-        const val WEATHER_ID = "weather_id"
+        private const val WEATHER_ID = "weather_id"
         const val WEATHER_NOW = "weatherNow"
         const val WEATHER_DATE = "weatherDate"
         const val WEATHER_CITY = "weatherCity"

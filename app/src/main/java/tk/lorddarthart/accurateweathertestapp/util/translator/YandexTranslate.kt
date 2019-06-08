@@ -71,9 +71,9 @@ class YandexTranslate : TranslatorNetwork {
 
     @Throws(JSONException::class)
     override fun readTranslation(stringResponse: String): String {
-        val kukareku = JSONObject(stringResponse).getJSONArray("text")
+        val translationsArray = JSONObject(stringResponse).getJSONArray("text")
         return JSONObject(stringResponse).getJSONArray("text")
-                .get(kukareku.length()-1) as String
+                .get(translationsArray.length()-1) as String
     }
 
     companion object {

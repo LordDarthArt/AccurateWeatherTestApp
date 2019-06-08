@@ -8,17 +8,9 @@ import tk.lorddarthart.accurateweathertestapp.application.view.base.BaseActivity
 import tk.lorddarthart.accurateweathertestapp.application.view.fragment.MainFragment
 import tk.lorddarthart.accurateweathertestapp.util.ModelViewPresenter
 
-class MainActivity : BaseActivity(), ModelViewPresenter.MainActivityView {
+class MainActivity : BaseActivity() {
 
     lateinit var mFragment: MainFragment
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        initFragment()
-        setContent()
-    }
 
     override fun initFragment() {
         mFragment = MainFragment()
@@ -41,6 +33,7 @@ class MainActivity : BaseActivity(), ModelViewPresenter.MainActivityView {
 
     override fun setContent() {
         val mainFragment = R.id.mainFragment
-        supportFragmentManager.beginTransaction().replace(mainFragment, mFragment).commit()
+        supportFragmentManager.beginTransaction()
+                .replace(mainFragment, mFragment).commitAllowingStateLoss()
     }
 }

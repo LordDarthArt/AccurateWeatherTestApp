@@ -14,7 +14,7 @@ import java.util.LinkedList
 
 internal class HorizontalRecyclerViewAdapter(//Адаптер для создания карточек с погодой на неделю в подробном просмотре.
         var context: Context,
-        var listWeatherDay: LinkedList<WeatherDayModel>
+        var listWeatherDay: MutableList<WeatherDayModel>
 ) : RecyclerView.Adapter<HorizontalRecyclerViewAdapter.ViewHolder>() {
     private lateinit var mView: View
     private lateinit var mViewHolder: ViewHolder

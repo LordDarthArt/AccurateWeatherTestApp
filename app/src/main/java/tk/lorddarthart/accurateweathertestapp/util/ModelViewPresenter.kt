@@ -1,24 +1,18 @@
 package tk.lorddarthart.accurateweathertestapp.util
 
-import android.view.MenuItem
-
 interface ModelViewPresenter {
     interface Model
 
     interface FragmentView {
-        fun initViews()
-        fun initAnimations()
-        fun initLists()
         fun initialization()
+        fun initViews()
+        fun initTools()
         fun setContent()
-        fun animateFab()
-        fun onClick()
-        fun hideSoftKeyboard()
-        fun getQuery(): String
-        fun showLoading()
-        suspend fun netOps(mCity: String, latitude: String, longitude: String)
-        fun syncResult()
-        fun optionItemSelected(item: MenuItem)
+        fun initListeners()
+        fun checkSharedPreferences()
+        fun finishingSetContent()
+        fun onClick(btn: String)
+        fun refreshFragment()
     }
 
     interface MainActivityView {
