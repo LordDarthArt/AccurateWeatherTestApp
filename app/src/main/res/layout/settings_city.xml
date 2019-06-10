@@ -29,7 +29,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_baseline_plus_24px_black" />
+                app:srcCompat="@drawable/ic_baseline_plus_24px_black"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/tvCity"
@@ -38,7 +39,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:text="TextView"
+                android:text="@string/textview"
                 android:textSize="20sp"
                 app:layout_constraintEnd_toStartOf="@+id/ivDelCity"
                 app:layout_constraintHorizontal_bias="1.0"
@@ -51,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
-                android:text="TextView"
+                android:text="@string/textview"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/tvCity"
                 app:layout_constraintTop_toBottomOf="@+id/tvCity" />
@@ -62,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:text="TextView"
+                android:text="@string/textview"
                 app:layout_constraintStart_toEndOf="@+id/tvLongitude"
                 app:layout_constraintTop_toBottomOf="@+id/tvCity" />
         </android.support.constraint.ConstraintLayout>

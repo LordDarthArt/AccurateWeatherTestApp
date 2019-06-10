@@ -1,26 +1,33 @@
 package tk.lorddarthart.accurateweathertestapp.util.adapter
 
+import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.database.sqlite.SQLiteDatabase
 import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import org.jetbrains.anko.design.longSnackbar
 import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.application.model.CityModel
 import tk.lorddarthart.accurateweathertestapp.application.view.activity.MainActivity
-import tk.lorddarthart.accurateweathertestapp.application.view.fragment.MainFragment
+import tk.lorddarthart.accurateweathertestapp.application.view.fragment.CitiesListFragment
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlCommands.SQL_DELETE
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlCommands.SQL_EQUALLY
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlCommands.SQL_SEMICOLON
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlCommands.SQL_WHERE
 import tk.lorddarthart.accurateweathertestapp.util.tools.WeatherDatabaseHelper
 
 class CitiesListAdapter(
-        var mContext: MainActivity,
-        var mCitiesList: MutableList<CityModel>,
-        var mSqLiteDatabase: SQLiteDatabase
-): RecyclerView.Adapter<CitiesListAdapter.ViewHolder>() {
+        private var mContext: MainActivity,
+        var mFragment: CitiesListFragment,
+        private var mCitiesList: MutableList<CityModel>,
+        private var mSqLiteDatabase: SQLiteDatabase,
+        private var changes: Array<Int>
+) : RecyclerView.Adapter<CitiesListAdapter.ViewHolder>() {
     private lateinit var mView: View
     private lateinit var mViewHolder: ViewHolder
 
@@ -35,33 +42,42 @@ class CitiesListAdapter(
         return mCitiesList.size
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.textViewCity.text = mCitiesList[position].mCityName
-        holder.textViewLatitude.text = mCitiesList[position].mLatitude
-        holder.textViewLongitude.text = mCitiesList[position].mLongitude
+        holder.textViewLatitude.text = "${mContext.resources.getString(R.string.latitude)} ${mCitiesList[position].mLatitude}"
+        holder.textViewLongitude.text = "${mContext.resources.getString(R.string.longitude)} ${mCitiesList[position].mLongitude}"
         holder.buttonRemoveCity.setOnClickListener {
             try {
-                val query = "DELETE from " +
-                        WeatherDatabaseHelper.DATABASE_WEATHER + " WHERE " +
-                        WeatherDatabaseHelper.WEATHER_FILTERNAME + " = \"" +
-                        holder.textViewCity.text.toString() + "\""
-                val query2 = "DELETE from " + WeatherDatabaseHelper.DATABASE_WEATHER_CITY +
-                        " WHERE " + WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME + " = \"" +
-                        holder.textViewCity.text.toString() + "\""
-                mSqLiteDatabase.execSQL(query)
-                mSqLiteDatabase.execSQL(query2)
-                holder.citiesListItem.visibility = View.GONE
+                AlertDialog.Builder(mContext)
+                        .setTitle(mContext.getString(R.string.deleting_city_title))
+                        .setMessage(mContext.getString(R.string.delete_city_message))
+                        .setPositiveButton(R.string.yes) { _, _ ->
+                            val query = SQL_DELETE +
+                                    WeatherDatabaseHelper.DATABASE_WEATHER + SQL_WHERE +
+                                    WeatherDatabaseHelper.WEATHER_FILTERNAME + " = \"" +
+                                    holder.textViewCity.text.toString() + "\""
+                            val query2 = SQL_DELETE + WeatherDatabaseHelper.DATABASE_WEATHER_CITY +
+                                    SQL_WHERE + WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME +
+                                    "$SQL_EQUALLY$SQL_SEMICOLON" +
+                                    holder.textViewCity.text.toString() + SQL_SEMICOLON
+                            mSqLiteDatabase.execSQL(query)
+                            mSqLiteDatabase.execSQL(query2)
+                            holder.citiesListItem.visibility = View.GONE
+                            changes[0]++
+                        }
+                        .setNegativeButton(R.string.no) { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .setCancelable(false)
+                        .show()
             } catch (e: Exception) {
                 e.message?.let { errorMessage ->
-                    longSnackbar(
-                            mContext.findViewById(android.R.id.content), errorMessage
+                    mView.longSnackbar(
+                            errorMessage
                     ).show()
                 }
             }
-        }
-        holder.buttonApply.setOnClickListener {
-            mContext.supportFragmentManager.beginTransaction()
-                    .replace(R.id.mainFragment, MainFragment()).commit()
         }
     }
 
@@ -70,7 +86,12 @@ class CitiesListAdapter(
         val textViewLongitude: TextView = itemView.findViewById(R.id.tvLongitude)
         val textViewLatitude: TextView = itemView.findViewById(R.id.tvLatitude)
         val buttonRemoveCity: ImageView = itemView.findViewById(R.id.ivDelCity)
-        val buttonApply: TextView = itemView.findViewById(R.id.txtBtn)
         val citiesListItem: CardView = itemView.findViewById(R.id.cities_list_item)
+
+        init {
+            itemView.setOnClickListener {
+                mFragment.onApplySettings()
+            }
+        }
     }
 }

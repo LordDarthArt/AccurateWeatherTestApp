@@ -32,4 +32,10 @@
     <string name="sync">Synchronizing…</string>
     <string name="longitude">Longitude</string>
     <string name="latitude">Latitude</string>
+    <string name="pressure_unit">mb</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="deleting_city_title">Removing city</string>
+    <string name="delete_city_message">Are you sure you want to delete this city from list?</string>
+    <string name="ioerror">Input error, please try again</string>
 </resources>

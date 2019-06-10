@@ -1,19 +1,17 @@
 package tk.lorddarthart.accurateweathertestapp.application.view.activity
 
-import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.application.view.base.BaseActivity
 import tk.lorddarthart.accurateweathertestapp.application.view.fragment.MainFragment
-import tk.lorddarthart.accurateweathertestapp.util.ModelViewPresenter
 
 class MainActivity : BaseActivity() {
 
-    lateinit var mFragment: MainFragment
+    private lateinit var mFragment: MainFragment
 
     override fun initFragment() {
-        mFragment = MainFragment()
+        mFragment = MainFragment.newInstance()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -24,7 +22,7 @@ class MainActivity : BaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         item?.let {
             when (it.itemId) {
-                R.id.action_setcity -> mFragment.optionItemSelected(it)
+                R.id.action_setcity -> mFragment.optionItemSelected()
                 else -> return false
             }
         }

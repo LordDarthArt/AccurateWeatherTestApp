@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import android.os.Bundle
-import android.os.SharedMemory
 import android.preference.PreferenceManager
 import android.support.v4.app.Fragment
 import android.util.Log
@@ -100,6 +99,6 @@ open class BaseFragment : Fragment(), ModelViewPresenter.FragmentView {
     }
 
     companion object {
-        const val TAG = "BaseFragment"
+        //const val TAG = "BaseFragment"
     }
 }

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -15,9 +16,28 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.jetbrains.anko.design.longSnackbar
 import tk.lorddarthart.accurateweathertestapp.R
+import tk.lorddarthart.accurateweathertestapp.R.*
 import tk.lorddarthart.accurateweathertestapp.application.model.WeatherDayModel
 import tk.lorddarthart.accurateweathertestapp.application.view.base.BaseFragment
 import tk.lorddarthart.accurateweathertestapp.util.adapter.FutureForecastsAdapter
+import tk.lorddarthart.accurateweathertestapp.util.constants.SharedPreferencesKeys.SHARED_PREFERENCES_KEY_FUTURE_FORECAST
+import tk.lorddarthart.accurateweathertestapp.util.constants.SharedPreferencesValues.SHARED_PREFERENCES_3DAYS
+import tk.lorddarthart.accurateweathertestapp.util.constants.SharedPreferencesValues.SHARED_PREFERENCES_7DAYS
+import tk.lorddarthart.accurateweathertestapp.util.constants.SimpleDateFormatPatterns.TXT_DAY_PATTERN
+import tk.lorddarthart.accurateweathertestapp.util.constants.SimpleDateFormatPatterns.TXT_FULL_SDF_PATTERN
+import tk.lorddarthart.accurateweathertestapp.util.constants.SimpleDateFormatPatterns.TXT_MONTH_YEAR_PATTERN
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlColumns.WEATHER_CITY
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlColumns.WEATHER_D
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlColumns.WEATHER_DATE
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlColumns.WEATHER_DESCRIPTION
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlColumns.WEATHER_HIGH
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlColumns.WEATHER_HUMIDITY
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlColumns.WEATHER_LOW
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlColumns.WEATHER_NOW
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlColumns.WEATHER_PRESSURE
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlColumns.WEATHER_SUNRISE
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlColumns.WEATHER_SUNSET
+import tk.lorddarthart.accurateweathertestapp.util.constants.SqlColumns.WEATHER_TEXT
 import java.lang.reflect.Type
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -45,6 +65,14 @@ class ExtendedFragment : BaseFragment() {
     private var mWeatherDescription: String? = null
     private var mWeatherHumidity: Double? = null
     private var mWeatherPressure: Double? = null
+    private var mWeatherDay1: String? = null
+    private var mWeatherDay2: String? = null
+    private var mWeatherDay3: String? = null
+    private var mWeatherDay4: String? = null
+    private var mWeatherDay5: String? = null
+    private var mWeatherDay6: String? = null
+    private var mWeatherDay7: String? = null
+    private var mWeatherDayArray = mutableListOf<String>()
 
     // Views
     private lateinit var txtDay: TextView
@@ -74,6 +102,20 @@ class ExtendedFragment : BaseFragment() {
             mWeatherDescription = it.getString(WEATHER_DESCRIPTION)
             mWeatherHumidity = it.getDouble(WEATHER_HUMIDITY)
             mWeatherPressure = it.getDouble(WEATHER_PRESSURE)
+            mWeatherDay1 = it.getString("$WEATHER_D${1}")
+            mWeatherDay2 = it.getString("$WEATHER_D${2}")
+            mWeatherDay3 = it.getString("$WEATHER_D${3}")
+            mWeatherDay4 = it.getString("$WEATHER_D${4}")
+            mWeatherDay5 = it.getString("$WEATHER_D${5}")
+            mWeatherDay6 = it.getString("$WEATHER_D${6}")
+            mWeatherDay7 = it.getString("$WEATHER_D${7}")
+            mWeatherDayArray.add(0, mWeatherDay1!!)
+            mWeatherDayArray.add(1, mWeatherDay2!!)
+            mWeatherDayArray.add(2, mWeatherDay3!!)
+            mWeatherDayArray.add(3, mWeatherDay4!!)
+            mWeatherDayArray.add(4, mWeatherDay5!!)
+            mWeatherDayArray.add(5, mWeatherDay6!!)
+            mWeatherDayArray.add(6, mWeatherDay7!!)
         }
 
         currentFragmentTag = TAG
@@ -82,7 +124,7 @@ class ExtendedFragment : BaseFragment() {
     @SuppressLint("SimpleDateFormat", "SetTextI18n")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        mView = inflater.inflate(R.layout.fragment_extended, container, false)
+        mView = inflater.inflate(layout.fragment_extended, container, false)
 
         initialization()
         setContent()
@@ -135,8 +177,8 @@ class ExtendedFragment : BaseFragment() {
                             sdf.parse(mWeatherDate)
                     )
         } catch (e: ParseException) {
-            longSnackbar(
-                    mActivity.findViewById(android.R.id.content), e.message.toString()
+            mView.longSnackbar(
+                    e.message.toString()
             )
         }
         futureForecastsList = mutableListOf()
@@ -147,20 +189,20 @@ class ExtendedFragment : BaseFragment() {
         if (btnClickedId != txt3days.id) {
             futureForecasts = 7
             mSharedPreferences.edit().putString(
-                    SHARED_PREFERENCES_KEY,
+                    SHARED_PREFERENCES_KEY_FUTURE_FORECAST,
                     SHARED_PREFERENCES_7DAYS
             ).apply()
-            txt7days.setTextColor(resources.getColor(R.color.colorPrimary))
-            txt3days.setTextColor(resources.getColor(R.color.notSelected))
+            txt7days.setTextColor(ContextCompat.getColor(mActivity, color.colorPrimary))
+            txt3days.setTextColor(ContextCompat.getColor(mActivity, color.notSelected))
             refreshFragment()
         } else if (btnClickedId != txt7days.id) {
             futureForecasts = 3
             mSharedPreferences.edit().putString(
-                    SHARED_PREFERENCES_KEY,
+                    SHARED_PREFERENCES_KEY_FUTURE_FORECAST,
                     SHARED_PREFERENCES_3DAYS
             ).apply()
-            txt3days.setTextColor(resources.getColor(R.color.colorPrimary))
-            txt7days.setTextColor(resources.getColor(R.color.notSelected))
+            txt3days.setTextColor(ContextCompat.getColor(mActivity, color.colorPrimary))
+            txt7days.setTextColor(ContextCompat.getColor(mActivity, color.notSelected))
             refreshFragment()
         }
     }
@@ -175,42 +217,43 @@ class ExtendedFragment : BaseFragment() {
         }
         txtTitle.text = mWeatherCity
         txtHumidity.text = "$mWeatherHumidity%"
-        txtPressure.text = "$mWeatherPressure mb"
+        txtPressure.text = "$mWeatherPressure ${resources.getString(string.pressure_unit)}"
         txtSunrise.text = "$mWeatherSunrise"
         txtSunset.text = "$mWeatherSunset"
     }
 
     override fun checkSharedPreferences() {
         super.checkSharedPreferences()
+
         setText()
         // Checking for "futureForecast" in preferences
-        if (!mSharedPreferences.contains(SHARED_PREFERENCES_KEY)) {
-            mSharedPreferences.edit().putString(SHARED_PREFERENCES_KEY,
+        if (!mSharedPreferences.contains(SHARED_PREFERENCES_KEY_FUTURE_FORECAST)) {
+            mSharedPreferences.edit().putString(SHARED_PREFERENCES_KEY_FUTURE_FORECAST,
                     SHARED_PREFERENCES_7DAYS).apply()
         }
         // If configured then...
         if (
                 mSharedPreferences.getString(
-                        SHARED_PREFERENCES_KEY,
+                        SHARED_PREFERENCES_KEY_FUTURE_FORECAST,
                         SHARED_PREFERENCES_7DAYS
                 ) == SHARED_PREFERENCES_3DAYS
         ) {
             // ...Highlight "3-days" btn
             futureForecasts = 3
             btnClickedId = txt3days.id
-            txt3days.setTextColor(resources.getColor(R.color.colorPrimary))
-            txt7days.setTextColor(resources.getColor(R.color.notSelected))
+            txt3days.setTextColor(ContextCompat.getColor(mActivity, color.colorPrimary))
+            txt7days.setTextColor(ContextCompat.getColor(mActivity, color.notSelected))
         } else if (
                 mSharedPreferences.getString(
-                        SHARED_PREFERENCES_KEY,
+                        SHARED_PREFERENCES_KEY_FUTURE_FORECAST,
                         SHARED_PREFERENCES_7DAYS
                 ) == SHARED_PREFERENCES_7DAYS
         ) {
             // ...Highlight "7-days" btn
             futureForecasts = 7
             btnClickedId = txt7days.id
-            txt7days.setTextColor(resources.getColor(R.color.colorPrimary))
-            txt3days.setTextColor(resources.getColor(R.color.notSelected))
+            txt7days.setTextColor(ContextCompat.getColor(mActivity, color.colorPrimary))
+            txt3days.setTextColor(ContextCompat.getColor(mActivity, color.notSelected))
         }
     }
 
@@ -234,8 +277,7 @@ class ExtendedFragment : BaseFragment() {
             for (i in 0 until it) {
                 futureForecastsList.add(
                         (gson.fromJson<Any>(
-                                arguments?.getString(
-                                        "weatherD" + (i + 1)),
+                                mWeatherDayArray[i],
                                 type
                         ) as MutableList<*>
                                 )[0] as WeatherDayModel
@@ -264,25 +306,6 @@ class ExtendedFragment : BaseFragment() {
     companion object {
         const val TAG = "ExtendedFragment"
 
-        const val WEATHER_DATE = "weatherDate"
-        const val WEATHER_TEXT = "weatherText"
-        const val WEATHER_NOW = "weatherNow"
-        const val WEATHER_CITY = "weatherCity"
-        const val WEATHER_HUMIDITY = "weatherHumidity"
-        const val WEATHER_PRESSURE = "weatherPressure"
-        const val WEATHER_HIGH = "weatherHigh"
-        const val WEATHER_LOW = "weatherLow"
-        const val WEATHER_SUNRISE = "weatherSunrise"
-        const val WEATHER_SUNSET = "weatherSunset"
-        const val WEATHER_DESCRIPTION = "weatherDescription"
-        const val SHARED_PREFERENCES_KEY = "futureForecast"
-        const val SHARED_PREFERENCES_3DAYS = "3days"
-        const val SHARED_PREFERENCES_7DAYS = "7days"
-        const val TXT_FULL_SDF_PATTERN = "dd-MM-yyyy HH:mm"
-        const val TXT_DAY_PATTERN = "dd"
-        const val TXT_MONTH_YEAR_PATTERN = "MMMM, yyyy"
-        private const val WEATHER_D = "weatherD"
-
         @JvmStatic
         fun newInstance(mWeatherDate: String, mWeatherText: String,
                         mWeatherNow: Double, mWeatherCity: String,
@@ -293,14 +316,6 @@ class ExtendedFragment : BaseFragment() {
                         mWeatherDay4: String, mWeatherDay5: String, mWeatherDay6: String,
                         mWeatherDay7: String) =
                 ExtendedFragment().apply {
-                    val mWeatherDayArray = mutableListOf<String>()
-                    mWeatherDayArray.add(0, mWeatherDay1)
-                    mWeatherDayArray.add(1, mWeatherDay2)
-                    mWeatherDayArray.add(2, mWeatherDay3)
-                    mWeatherDayArray.add(3, mWeatherDay4)
-                    mWeatherDayArray.add(4, mWeatherDay5)
-                    mWeatherDayArray.add(5, mWeatherDay6)
-                    mWeatherDayArray.add(6, mWeatherDay7)
                     arguments = Bundle().apply {
                         putString(WEATHER_DATE, mWeatherDate)
                         putString(WEATHER_TEXT, mWeatherText)
@@ -313,9 +328,13 @@ class ExtendedFragment : BaseFragment() {
                         putString(WEATHER_DESCRIPTION, mWeatherDescription)
                         putDouble(WEATHER_HUMIDITY, mWeatherHumidity)
                         putDouble(WEATHER_PRESSURE, mWeatherPressure)
-                        for (i in 0 until 7) {
-                            putString("$WEATHER_D${i + 1}", mWeatherDayArray[i])
-                        }
+                        putString("$WEATHER_D${1}", mWeatherDay1)
+                        putString("$WEATHER_D${2}", mWeatherDay2)
+                        putString("$WEATHER_D${3}", mWeatherDay3)
+                        putString("$WEATHER_D${4}", mWeatherDay4)
+                        putString("$WEATHER_D${5}", mWeatherDay5)
+                        putString("$WEATHER_D${6}", mWeatherDay6)
+                        putString("$WEATHER_D${7}", mWeatherDay7)
                     }
                 }
     }

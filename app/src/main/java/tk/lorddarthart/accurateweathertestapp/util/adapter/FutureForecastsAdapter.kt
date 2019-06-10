@@ -12,7 +12,7 @@ import tk.lorddarthart.accurateweathertestapp.application.model.WeatherDayModel
 
 internal class FutureForecastsAdapter(//Адаптер для создания карточек с погодой на неделю в подробном просмотре.
         var context: Context,
-        var listWeatherDay: MutableList<WeatherDayModel>
+        private var listWeatherDay: MutableList<WeatherDayModel>
 ) : RecyclerView.Adapter<FutureForecastsAdapter.ViewHolder>() {
     private lateinit var mView: View
     private lateinit var mViewHolder: ViewHolder

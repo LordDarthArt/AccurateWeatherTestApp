@@ -29,4 +29,10 @@
     <string name="latitude">Широта</string>
     <string name="longitude">Долгота</string>
     <string name="sunrise">Восход:</string>
+    <string name="pressure_unit">мбар</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="delete_city_message">Вы уверены, что хотите удалить из списка данный город?</string>
+    <string name="deleting_city_title">Удаление города</string>
+    <string name="ioerror">Произошла ошибка, повторите попытку ввода</string>
 </resources>

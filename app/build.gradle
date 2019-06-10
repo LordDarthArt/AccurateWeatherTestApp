@@ -8,8 +8,8 @@ android {
         applicationId "tk.lorddarthart.accurateweathertestapp"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 3
-        versionName "0.5.1-pre-alpha-hotfix"
+        versionCode 4
+        versionName "0.6.5-alpha"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
