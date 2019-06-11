@@ -1,17 +1,26 @@
 package tk.lorddarthart.accurateweathertestapp.application.view.activity
 
+import android.annotation.SuppressLint
+import android.os.Bundle
+import android.support.design.widget.FloatingActionButton
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.application.view.base.BaseActivity
 import tk.lorddarthart.accurateweathertestapp.application.view.fragment.MainFragment
 import tk.lorddarthart.accurateweathertestapp.util.IOnBackPressed
-import java.lang.Exception
 
 class MainActivity : BaseActivity() {
 
     private lateinit var mFragment: MainFragment
+    lateinit var mFloatingActionButton: FloatingActionButton
     lateinit var mSetCity: MenuItem
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mFloatingActionButton = findViewById(R.id.floatingActionButton)
+    }
 
     fun displayHomeAsUpEnabled(state: Boolean) {
         this.supportActionBar?.setDisplayHomeAsUpEnabled(state)
@@ -19,6 +28,14 @@ class MainActivity : BaseActivity() {
 
     fun setActionBarTitle(title: String) {
         this.supportActionBar?.title = title
+    }
+
+    fun setFabVisibility(state: Boolean) {
+        if (state) {
+            mFloatingActionButton.show()
+        } else {
+            mFloatingActionButton.hide()
+        }
     }
 
     override fun initFragment() {
@@ -31,6 +48,7 @@ class MainActivity : BaseActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         item?.let {
             when (it.itemId) {
@@ -38,8 +56,9 @@ class MainActivity : BaseActivity() {
                 android.R.id.home -> {
                     supportFragmentManager.popBackStack()
                     setActionBarTitle(getString(R.string.app_name))
-                    mSetCity.isVisible  = true
+                    mSetCity.isVisible = true
                     displayHomeAsUpEnabled(false)
+                    mFloatingActionButton.visibility = View.VISIBLE
                 }
                 else -> return false
             }

@@ -35,9 +35,12 @@ class CitiesListFragment : BaseFragment(), IOnBackPressed {
         currentFragmentTag = TAG
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         mView = inflater.inflate(R.layout.fragment_cities_list, container, false)
+
+        //mActivity.setFabVisibility(false)
 
         initialization()
         setContent()
@@ -69,6 +72,7 @@ class CitiesListFragment : BaseFragment(), IOnBackPressed {
         super.initTools()
 
         mActivity.mSetCity.isVisible = false
+        mActivity.setFabVisibility(false)
 
         val citiesQuery = SQL_SELECT_ALL + WeatherDatabaseHelper.DATABASE_WEATHER_CITY
         val mCitiesCursor = mSqLiteDatabase.rawQuery(citiesQuery, arrayOfNulls(0))
@@ -130,6 +134,7 @@ class CitiesListFragment : BaseFragment(), IOnBackPressed {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     fun onApplySettings() {
         if (changes[0] > 0) {
             mActivity.supportFragmentManager.beginTransaction()
@@ -138,11 +143,15 @@ class CitiesListFragment : BaseFragment(), IOnBackPressed {
             mActivity.supportFragmentManager.popBackStack()
         }
 
+        mActivity.setFabVisibility(true)
         mActivity.mSetCity.isVisible = true
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onBackPressed(): Boolean {
         mActivity.supportFragmentManager.popBackStack()
+
+        mActivity.setFabVisibility(true)
         mActivity.mSetCity.isVisible = true
         return true
     }

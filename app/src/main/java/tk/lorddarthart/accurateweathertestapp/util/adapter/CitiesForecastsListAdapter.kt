@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.application.model.weather.WeatherModel
+import tk.lorddarthart.accurateweathertestapp.util.constants.SimpleDateFormatPatterns.TXT_DAY_MONTH_PATTERN
 import tk.lorddarthart.accurateweathertestapp.util.tools.OnItemTouchListener
 
 import java.text.SimpleDateFormat
@@ -32,7 +33,7 @@ class CitiesForecastsListAdapter(  //Адаптер для создания ка
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val weather = listWeather[position]
         holder.tvCity.text = weather.weatherCity //город
-        val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm")
+        val sdf = SimpleDateFormat(TXT_DAY_MONTH_PATTERN)
         val date = Date(weather.weatherDate)
         holder.tvToday.text = sdf.format(date)
         if (weather.weatherHigh > 0) {

@@ -122,13 +122,14 @@ class ExtendedFragment : BaseFragment(), IOnBackPressed {
         currentFragmentTag = TAG
     }
 
-    @SuppressLint("SimpleDateFormat", "SetTextI18n")
+    @SuppressLint("SimpleDateFormat", "SetTextI18n", "RestrictedApi")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         mView = inflater.inflate(layout.fragment_extended, container, false)
 
         mActivity.mSetCity.isVisible = false
         mActivity.displayHomeAsUpEnabled(true)
+        mActivity.setFabVisibility(false)
 
         initialization()
         setContent()
@@ -183,7 +184,7 @@ class ExtendedFragment : BaseFragment(), IOnBackPressed {
         } catch (e: ParseException) {
             mView.longSnackbar(
                     e.message.toString()
-            )
+            ).show()
         }
         futureForecastsList = mutableListOf()
         mActivity.setActionBarTitle(mWeatherCity!!)
@@ -231,6 +232,7 @@ class ExtendedFragment : BaseFragment(), IOnBackPressed {
         super.checkSharedPreferences()
 
         mActivity.mSetCity.isVisible = false
+        mActivity.setFabVisibility(false)
 
         setText()
         // Checking for "futureForecast" in preferences
@@ -310,11 +312,13 @@ class ExtendedFragment : BaseFragment(), IOnBackPressed {
         initAdapter()
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onBackPressed(): Boolean {
         mActivity.supportFragmentManager.popBackStack()
         mActivity.setActionBarTitle(getString(string.app_name))
         mActivity.mSetCity.isVisible = true
         mActivity.displayHomeAsUpEnabled(false)
+        mActivity.setFabVisibility(true)
         return true
     }
 

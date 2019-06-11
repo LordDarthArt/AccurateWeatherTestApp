@@ -45,8 +45,8 @@ class CitiesListAdapter(
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.textViewCity.text = mCitiesList[position].mCityName
-        holder.textViewLatitude.text = "${mContext.resources.getString(R.string.latitude)} ${mCitiesList[position].mLatitude}"
-        holder.textViewLongitude.text = "${mContext.resources.getString(R.string.longitude)} ${mCitiesList[position].mLongitude}"
+        holder.textViewLatitude.text = "${mContext.resources.getString(R.string.latitude)}: ${mCitiesList[position].mLatitude}"
+        holder.textViewLongitude.text = "${mContext.resources.getString(R.string.longitude)}: ${mCitiesList[position].mLongitude}"
         holder.buttonRemoveCity.setOnClickListener {
             try {
                 AlertDialog.Builder(mContext)

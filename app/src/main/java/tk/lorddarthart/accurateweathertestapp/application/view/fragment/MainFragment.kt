@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.location.Address
 import android.location.Geocoder
+import android.os.Build
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
 import android.support.design.widget.FloatingActionButton
@@ -34,8 +35,10 @@ import tk.lorddarthart.accurateweathertestapp.application.model.weather.WeatherM
 import tk.lorddarthart.accurateweathertestapp.application.view.base.BaseFragment
 import tk.lorddarthart.accurateweathertestapp.util.IOnBackPressed
 import tk.lorddarthart.accurateweathertestapp.util.adapter.CitiesForecastsListAdapter
-import tk.lorddarthart.accurateweathertestapp.util.constants.SharedPreferencesKeys.SHARED_PREFERENCES_KEY_CITIES_LIST
-import tk.lorddarthart.accurateweathertestapp.util.constants.SimpleDateFormatPatterns.TXT_FULL_SDF_PATTERN
+import tk.lorddarthart.accurateweathertestapp.util.constants.SharedPreferencesKeys
+        .SHARED_PREFERENCES_KEY_CITIES_LIST
+import tk.lorddarthart.accurateweathertestapp.util.constants.SimpleDateFormatPatterns
+        .TXT_FULL_SDF_PATTERN
 import tk.lorddarthart.accurateweathertestapp.util.constants.SqlCommands.SQL_CLOSES
 import tk.lorddarthart.accurateweathertestapp.util.constants.SqlCommands.SQL_COMMA
 import tk.lorddarthart.accurateweathertestapp.util.constants.SqlCommands.SQL_FROM
@@ -167,8 +170,19 @@ class MainFragment : BaseFragment(), PullRefreshLayout.OnRefreshListener, IOnBac
             }
         })
         mConstraintLayout.setOnClickListener {
-            animateFab()
             setDefaultFab()
+            animateFab()
+        }
+        checkRefreshNeedness()
+    }
+
+    private fun checkRefreshNeedness() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mRecyclerView.setOnScrollChangeListener { _, _, _, _, _ ->
+                mSwipeRefreshLayout.isEnabled =
+                        (mLayoutManager as LinearLayoutManager)
+                                .findFirstCompletelyVisibleItemPosition() == 0
+            }
         }
     }
 
@@ -251,7 +265,8 @@ class MainFragment : BaseFragment(), PullRefreshLayout.OnRefreshListener, IOnBac
                                     SQL_COMMA + WeatherDatabaseHelper.WEATHER_CITY_LONGITUDE +
                                     "$SQL_VALUES'${YandexTranslate()
                                             .translateToLocale(mActivity, "Москва")}'," +
-                                    latitude.toString() + SQL_COMMA + longitude.toString() + SQL_CLOSES
+                                    latitude.toString() + SQL_COMMA + longitude.toString() +
+                                    SQL_CLOSES
                             mSqLiteDatabase.execSQL(addCitiesQuery)
                         }
                     }
@@ -554,7 +569,7 @@ class MainFragment : BaseFragment(), PullRefreshLayout.OnRefreshListener, IOnBac
         } catch (e: Exception) {
             mView.longSnackbar(
                     e.message.toString()
-            )
+            ).show()
         }
     }
 
@@ -597,7 +612,7 @@ class MainFragment : BaseFragment(), PullRefreshLayout.OnRefreshListener, IOnBac
         } catch (e: Exception) {
             mView.longSnackbar(
                     e.message.toString()
-            )
+            ).show()
         }
     }
 
@@ -630,8 +645,8 @@ class MainFragment : BaseFragment(), PullRefreshLayout.OnRefreshListener, IOnBac
 
     override fun onBackPressed(): Boolean {
         if (isFloatingTextfieldOpen) {
-            animateFab()
             setDefaultFab()
+            animateFab()
         } else {
             AlertDialog.Builder(mActivity)
                     .setTitle(getString(R.string.exit))
