@@ -12,7 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import tk.lorddarthart.accurateweathertestapp.R
-import tk.lorddarthart.accurateweathertestapp.application.model.CityModel
+import tk.lorddarthart.accurateweathertestapp.application.model.city.CityModel
 import tk.lorddarthart.accurateweathertestapp.application.view.activity.MainActivity
 import tk.lorddarthart.accurateweathertestapp.util.ModelViewPresenter
 import tk.lorddarthart.accurateweathertestapp.util.tools.WeatherDatabaseHelper

@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import tk.lorddarthart.accurateweathertestapp.R
-import tk.lorddarthart.accurateweathertestapp.application.model.WeatherModel
+import tk.lorddarthart.accurateweathertestapp.application.model.weather.WeatherModel
 import tk.lorddarthart.accurateweathertestapp.util.tools.OnItemTouchListener
 
 import java.text.SimpleDateFormat

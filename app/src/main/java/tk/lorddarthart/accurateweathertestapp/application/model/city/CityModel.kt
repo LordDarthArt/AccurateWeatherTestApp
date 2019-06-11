@@ -1,4 +1,4 @@
-package tk.lorddarthart.accurateweathertestapp.application.model
+package tk.lorddarthart.accurateweathertestapp.application.model.city
 
 import tk.lorddarthart.accurateweathertestapp.util.ModelViewPresenter
 

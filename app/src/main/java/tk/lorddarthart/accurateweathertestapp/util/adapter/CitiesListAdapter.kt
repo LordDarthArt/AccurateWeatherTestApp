@@ -12,7 +12,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import org.jetbrains.anko.design.longSnackbar
 import tk.lorddarthart.accurateweathertestapp.R
-import tk.lorddarthart.accurateweathertestapp.application.model.CityModel
+import tk.lorddarthart.accurateweathertestapp.application.model.city.CityModel
 import tk.lorddarthart.accurateweathertestapp.application.view.activity.MainActivity
 import tk.lorddarthart.accurateweathertestapp.application.view.fragment.CitiesListFragment
 import tk.lorddarthart.accurateweathertestapp.util.constants.SqlCommands.SQL_DELETE

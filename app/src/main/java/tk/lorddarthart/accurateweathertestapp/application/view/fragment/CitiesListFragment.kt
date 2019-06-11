@@ -14,14 +14,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import tk.lorddarthart.accurateweathertestapp.R
-import tk.lorddarthart.accurateweathertestapp.application.model.CityModel
+import tk.lorddarthart.accurateweathertestapp.application.model.city.CityModel
 import tk.lorddarthart.accurateweathertestapp.application.view.base.BaseFragment
+import tk.lorddarthart.accurateweathertestapp.util.IOnBackPressed
 import tk.lorddarthart.accurateweathertestapp.util.adapter.CitiesListAdapter
 import tk.lorddarthart.accurateweathertestapp.util.constants.SqlCommands.SQL_SELECT_ALL
 import tk.lorddarthart.accurateweathertestapp.util.tools.RVClickHandler
 import tk.lorddarthart.accurateweathertestapp.util.tools.WeatherDatabaseHelper
 
-class CitiesListFragment : BaseFragment() {
+class CitiesListFragment : BaseFragment(), IOnBackPressed {
     private lateinit var mButtonApply: TextView
     private lateinit var mCitiesListRecycler: RecyclerView
     private lateinit var mLayoutManager: RecyclerView.LayoutManager
@@ -55,12 +56,20 @@ class CitiesListFragment : BaseFragment() {
                 Color.argb(150, 155, 155, 155),
                 PorterDuff.Mode.DARKEN
         )
-        mCitiesListBackground.setBackgroundColor(ContextCompat.getColor(mActivity, R.color.mDarkenBackground))
+        mCitiesListBackground.setBackgroundColor(
+                ContextCompat.getColor(
+                        mActivity,
+                        R.color.mDarkenBackground
+                )
+        )
     }
 
     @SuppressLint("Recycle")
     override fun initTools() {
         super.initTools()
+
+        mActivity.mSetCity.isVisible = false
+
         val citiesQuery = SQL_SELECT_ALL + WeatherDatabaseHelper.DATABASE_WEATHER_CITY
         val mCitiesCursor = mSqLiteDatabase.rawQuery(citiesQuery, arrayOfNulls(0))
         mCitiesCursor.moveToFirst()
@@ -95,7 +104,12 @@ class CitiesListFragment : BaseFragment() {
         }
         mLayoutManager = LinearLayoutManager(mActivity, VERTICAL, false)
         mCitiesListRecycler.layoutManager = mLayoutManager
-        mCitiesListAdapter = CitiesListAdapter(mActivity, this, mCitiesList, mSqLiteDatabase, changes)
+        mCitiesListAdapter = CitiesListAdapter(mActivity,
+                this,
+                mCitiesList,
+                mSqLiteDatabase,
+                changes
+        )
         mCitiesListRecycler.adapter = mCitiesListAdapter
     }
 
@@ -108,7 +122,9 @@ class CitiesListFragment : BaseFragment() {
         mCitiesListBackground.setOnClickListener{
             onApplySettings()
         }
-        mCitiesListRecycler.setOnTouchListener(RVClickHandler(mCitiesListRecycler))
+        mCitiesListRecycler.setOnTouchListener(
+                RVClickHandler(mCitiesListRecycler)
+        )
         mCitiesListRecycler.setOnClickListener {
             onApplySettings()
         }
@@ -121,6 +137,14 @@ class CitiesListFragment : BaseFragment() {
         } else {
             mActivity.supportFragmentManager.popBackStack()
         }
+
+        mActivity.mSetCity.isVisible = true
+    }
+
+    override fun onBackPressed(): Boolean {
+        mActivity.supportFragmentManager.popBackStack()
+        mActivity.mSetCity.isVisible = true
+        return true
     }
 
     companion object {

@@ -2,6 +2,7 @@ package tk.lorddarthart.accurateweathertestapp.application.view.fragment
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.database.Cursor
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -10,7 +11,6 @@ import android.location.Geocoder
 import android.os.Bundle
 import android.support.constraint.ConstraintLayout
 import android.support.design.widget.FloatingActionButton
-import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.Editable
@@ -24,15 +24,15 @@ import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.baoyz.widget.PullRefreshLayout
+import kotlinx.coroutines.*
 import org.jetbrains.anko.design.longSnackbar
+import org.jetbrains.anko.doAsync
 import tk.lorddarthart.accurateweathertestapp.R
-import tk.lorddarthart.accurateweathertestapp.application.model.CityModel
-import tk.lorddarthart.accurateweathertestapp.application.model.WeatherModel
+import tk.lorddarthart.accurateweathertestapp.application.model.city.CityModel
+import tk.lorddarthart.accurateweathertestapp.application.model.weather.WeatherModel
 import tk.lorddarthart.accurateweathertestapp.application.view.base.BaseFragment
+import tk.lorddarthart.accurateweathertestapp.util.IOnBackPressed
 import tk.lorddarthart.accurateweathertestapp.util.adapter.CitiesForecastsListAdapter
 import tk.lorddarthart.accurateweathertestapp.util.constants.SharedPreferencesKeys.SHARED_PREFERENCES_KEY_CITIES_LIST
 import tk.lorddarthart.accurateweathertestapp.util.constants.SimpleDateFormatPatterns.TXT_FULL_SDF_PATTERN
@@ -47,12 +47,12 @@ import tk.lorddarthart.accurateweathertestapp.util.constants.SqlCommands.SQL_VAL
 import tk.lorddarthart.accurateweathertestapp.util.tools.NetworkHelper
 import tk.lorddarthart.accurateweathertestapp.util.tools.OnItemTouchListener
 import tk.lorddarthart.accurateweathertestapp.util.tools.WeatherDatabaseHelper
+import tk.lorddarthart.accurateweathertestapp.util.translator.YandexTranslate
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class MainFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
-
+class MainFragment : BaseFragment(), PullRefreshLayout.OnRefreshListener, IOnBackPressed {
     private lateinit var mGeocoder: Geocoder
     private lateinit var mHttpServiceHelper: NetworkHelper
     private lateinit var mWeather: MutableList<WeatherModel>
@@ -77,7 +77,7 @@ class MainFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
     private lateinit var mRotateBackward: Animation
     private lateinit var mEditTextOpen: Animation
     private lateinit var mEditTextClose: Animation
-    private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var mSwipeRefreshLayout: PullRefreshLayout
 
     override fun onRefresh() {
         Log.d(TAG, getString(R.string.spinner_loading))
@@ -103,12 +103,14 @@ class MainFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
     override fun initViews() {
         super.initViews()
         with(mView) {
-            mConstraintLayout = findViewById(R.id.consLayHide)
-            mConsLayText = findViewById(R.id.consLayText)
-            mFab = findViewById(R.id.floatingActionButton)
-            mEditText = findViewById(R.id.editText)
             mRecyclerView = findViewById(R.id.recyclerView)
             mSwipeRefreshLayout = findViewById(R.id.swipe_container)
+        }
+        with(mActivity) {
+            mConsLayText = findViewById(R.id.consLayText)
+            mConstraintLayout = findViewById(R.id.consLayHide)
+            mFab = findViewById(R.id.floatingActionButton)
+            mEditText = findViewById(R.id.editText)
         }
     }
 
@@ -164,9 +166,15 @@ class MainFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
 
             }
         })
+        mConstraintLayout.setOnClickListener {
+            animateFab()
+            setDefaultFab()
+        }
     }
 
     override fun checkSharedPreferences() {
+        super.checkSharedPreferences()
+
         if (mSharedPreferences.getBoolean(SHARED_PREFERENCES_KEY_CITIES_LIST, false)) {
             val citiesQuery = SQL_SELECT_ALL + WeatherDatabaseHelper.DATABASE_WEATHER_CITY
             mCitiesCursor = mSqLiteDatabase.rawQuery(citiesQuery, arrayOfNulls(0))
@@ -201,44 +209,58 @@ class MainFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
             }
         } else {
             try {
-                mAdresses = mGeocoder.getFromLocationName("Санкт-Петербург",
-                        1)
-                if (mAdresses.isNotEmpty()) {
-                    val latitude = mAdresses[0].latitude
-                    val longitude = mAdresses[0].longitude
-                    val addCitiesQuery = SQL_INSERT +
-                            WeatherDatabaseHelper.DATABASE_WEATHER_CITY + SQL_OPENS +
-                            WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME + SQL_COMMA +
-                            WeatherDatabaseHelper.WEATHER_CITY_LATITUDE + SQL_COMMA +
-                            WeatherDatabaseHelper.WEATHER_CITY_LONGITUDE +
-                            "$SQL_VALUES'Санкт-Петербург'," + latitude.toString() + SQL_COMMA +
-                            longitude.toString() + ")"
-                    mSqLiteDatabase.execSQL(addCitiesQuery)
-                }
+                doAsync {
+                    mAdresses = mGeocoder.getFromLocationName("Санкт-Петербург",
+                            1)
+                    if (mAdresses.isNotEmpty()) {
+                        runBlocking(Dispatchers.IO) {
+                            val latitude = mAdresses[0].latitude
+                            val longitude = mAdresses[0].longitude
+                            val addCitiesQuery = SQL_INSERT +
+                                    WeatherDatabaseHelper.DATABASE_WEATHER_CITY + SQL_OPENS +
+                                    WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME + SQL_COMMA +
+                                    WeatherDatabaseHelper.WEATHER_CITY_LATITUDE + SQL_COMMA +
+                                    WeatherDatabaseHelper.WEATHER_CITY_LONGITUDE +
+                                    "$SQL_VALUES'${YandexTranslate().translateToLocale(mActivity,
+                                            "Санкт - Петербург")}'," + latitude.toString() +
+                                    SQL_COMMA +
+                                    longitude.toString() + ")"
+                            mSqLiteDatabase.execSQL(addCitiesQuery)
+                        }
+
+                    }
+                }.get()
             } catch (e: IOException) {
+                Log.d(TAG, getString(R.string.ioerror))
                 mView.longSnackbar(
                         e.message.toString()
-                )
+                ).show()
             }
 
             try {
-                mAdresses = mGeocoder.getFromLocationName("Москва", 1)
-                if (mAdresses.isNotEmpty()) {
-                    val latitude = mAdresses[0].latitude
-                    val longitude = mAdresses[0].longitude
-                    val addCitiesQuery = SQL_INSERT +
-                            WeatherDatabaseHelper.DATABASE_WEATHER_CITY +
-                            SQL_OPENS + WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME + SQL_COMMA +
-                            WeatherDatabaseHelper.WEATHER_CITY_LATITUDE + SQL_COMMA +
-                            WeatherDatabaseHelper.WEATHER_CITY_LONGITUDE + "$SQL_VALUES'Москва'," +
-                            latitude.toString() + SQL_COMMA +
-                            longitude.toString() + SQL_CLOSES
-                    mSqLiteDatabase.execSQL(addCitiesQuery)
-                }
+                doAsync {
+                    mAdresses = mGeocoder.getFromLocationName("Москва", 1)
+                    if (mAdresses.isNotEmpty()) {
+                        runBlocking(Dispatchers.IO) {
+                            val latitude = mAdresses[0].latitude
+                            val longitude = mAdresses[0].longitude
+                            val addCitiesQuery = SQL_INSERT +
+                                    WeatherDatabaseHelper.DATABASE_WEATHER_CITY +
+                                    SQL_OPENS + WeatherDatabaseHelper.WEATHER_CITY_FILTERNAME +
+                                    SQL_COMMA + WeatherDatabaseHelper.WEATHER_CITY_LATITUDE +
+                                    SQL_COMMA + WeatherDatabaseHelper.WEATHER_CITY_LONGITUDE +
+                                    "$SQL_VALUES'${YandexTranslate()
+                                            .translateToLocale(mActivity, "Москва")}'," +
+                                    latitude.toString() + SQL_COMMA + longitude.toString() + SQL_CLOSES
+                            mSqLiteDatabase.execSQL(addCitiesQuery)
+                        }
+                    }
+                }.get()
             } catch (e: IOException) {
+                Log.d(TAG, getString(R.string.ioerror))
                 mView.longSnackbar(
                         e.message.toString()
-                )
+                ).show()
             }
 
             mSharedPreferences.edit().putBoolean(SHARED_PREFERENCES_KEY_CITIES_LIST, true).apply()
@@ -276,7 +298,7 @@ class MainFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
     override fun finishingSetContent() {
         super.finishingSetContent()
         mSwipeRefreshLayout.post {
-            mSwipeRefreshLayout.isRefreshing = true
+            mSwipeRefreshLayout.setRefreshing(true)
             getNetworkForecasts()
         }
     }
@@ -286,9 +308,7 @@ class MainFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
         if (mEditText.text.isNotEmpty() && mFab.rotation != -45f) {
             textChanged()
         } else if (mEditText.text.isEmpty()) {
-            mFab.setImageResource(R.drawable.ic_baseline_plus_24px)
-            mFab.rotation = 0f
-            mFab.setOnClickListener { onClick("\"Add city\" Button") }
+            setDefaultFab()
         }
     }
 
@@ -296,14 +316,20 @@ class MainFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
         mFab.setImageResource(android.R.drawable.ic_menu_send)
         mFab.rotation = -45f
         mFab.setOnClickListener {
-            mFab.rotation = 0f
-            mFab.setImageResource(R.drawable.ic_baseline_plus_24px)
-            animateFab()
-            mFab.setOnClickListener { onClick("\"Add city\" Button") }
-            try {
-                mAdresses = mGeocoder.getFromLocationName(
-                        mEditText.text.toString(), 1)
-                if (mAdresses.isNotEmpty()) {
+            rotatedOnClick()
+        }
+    }
+
+    private fun rotatedOnClick() {
+        mFab.rotation = 0f
+        mFab.setImageResource(R.drawable.ic_baseline_plus_24px)
+        animateFab()
+        mFab.setOnClickListener { onClick("\"Add city\" Button") }
+        try {
+            mAdresses = mGeocoder.getFromLocationName(
+                    mEditText.text.toString(), 1)
+            if (mAdresses.isNotEmpty()) {
+                runBlocking(Dispatchers.IO) {
                     val latitude = mAdresses[0].latitude.toString()
                     val longitude = mAdresses[0].longitude.toString()
                     val sql =
@@ -313,24 +339,29 @@ class MainFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
                                     SQL_COMMA + WeatherDatabaseHelper.WEATHER_CITY_LATITUDE +
                                     SQL_COMMA +
                                     WeatherDatabaseHelper.WEATHER_CITY_LONGITUDE +
-                                    "$SQL_VALUES'" + mEditText.text.toString() + "'$SQL_COMMA" +
+                                    "$SQL_VALUES'${YandexTranslate()
+                                            .translateToLocale(
+                                                    mActivity, mEditText.text.toString()
+                                            )
+                                    }'$SQL_COMMA" +
                                     latitude + SQL_COMMA + longitude + SQL_CLOSES
                     mSqLiteDatabase.execSQL(sql)
-                } else {
-                    throw IOException()
                 }
-            } catch (e: IOException) {
-                mView.longSnackbar(
-                        getString(R.string.ioerror)
-                ).show()
+            } else {
+                throw IOException()
             }
+        } catch (e: IOException) {
+            Log.d(TAG, getString(R.string.ioerror))
+            mView.longSnackbar(
+                    getString(R.string.ioerror)
+            ).show()
+        }
 
-            mEditText.setText("")
+        mEditText.setText("")
 
-            mSwipeRefreshLayout.post {
-                mSwipeRefreshLayout.isRefreshing = true
-                refreshRecycler()
-            }
+        mSwipeRefreshLayout.post {
+            mSwipeRefreshLayout.setRefreshing(true)
+            refreshRecycler()
         }
     }
 
@@ -397,7 +428,9 @@ class MainFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            mView.longSnackbar(
+                    e.message.toString()
+            ).show()
         }
     }
 
@@ -412,6 +445,7 @@ class MainFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
     private fun animateFab() {
         Log.d(TAG, fabState(isFloatingTextfieldOpen))
         if (isFloatingTextfieldOpen) {
+            hideSoftKeyboard()
             mFab.startAnimation(mRotateForward)
             mConsLayText.startAnimation(mEditTextClose)
             mConsLayText.isClickable = false
@@ -553,18 +587,7 @@ class MainFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
                 WeatherDatabaseHelper.DATABASE_WEATHER
     }
 
-//    private fun showLoading() {
-//        if (opening == 0) {
-//            mDialog = indeterminateProgressDialog(getString(R.string.sync)).apply {
-//                setCancelable(false)
-//            }
-//            mDialog.show()
-//            opening++
-//        }
-//    }
-
     private suspend fun netOps(mCity: String, latitude: String, longitude: String) {
-        //TaskLoader.setTask(mActivity) - useless for now
         Log.d(TAG, getString(R.string.netops_log))
         try {
             mResponseCode = withContext(Dispatchers.IO) {
@@ -584,7 +607,7 @@ class MainFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
         if (opening2 == mCitiesList.size) {
             mForecastsCursor = mSqLiteDatabase.rawQuery(getQuery(), arrayOfNulls(0))
             getCurrentForecast()
-            mSwipeRefreshLayout.isRefreshing = false
+            mSwipeRefreshLayout.setRefreshing(false)
             mRecyclerView.visibility = View.VISIBLE
             mConstraintLayout.visibility = View.GONE
         }
@@ -595,6 +618,35 @@ class MainFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
         mActivity.supportFragmentManager.beginTransaction()
                 .add(R.id.mainFragment, CitiesListFragment.newInstance()).addToBackStack(null)
                 .commitAllowingStateLoss()
+    }
+
+    private fun setDefaultFab() {
+        mFab.setImageResource(R.drawable.ic_baseline_plus_24px)
+        mFab.rotation = 0f
+        mFab.setOnClickListener {
+            onClick("\"Add city\" Button")
+        }
+    }
+
+    override fun onBackPressed(): Boolean {
+        if (isFloatingTextfieldOpen) {
+            animateFab()
+            setDefaultFab()
+        } else {
+            AlertDialog.Builder(mActivity)
+                    .setTitle(getString(R.string.exit))
+                    .setMessage(getString(R.string.exit_confirmation))
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.yes) { _, _ ->
+                        mActivity.finishAffinity()
+                    }
+                    .setNegativeButton(R.string.no) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .create()
+                    .show()
+        }
+        return true
     }
 
     companion object {

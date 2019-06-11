@@ -17,8 +17,9 @@ import com.google.gson.reflect.TypeToken
 import org.jetbrains.anko.design.longSnackbar
 import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.R.*
-import tk.lorddarthart.accurateweathertestapp.application.model.WeatherDayModel
+import tk.lorddarthart.accurateweathertestapp.application.model.weather.WeatherDayModel
 import tk.lorddarthart.accurateweathertestapp.application.view.base.BaseFragment
+import tk.lorddarthart.accurateweathertestapp.util.IOnBackPressed
 import tk.lorddarthart.accurateweathertestapp.util.adapter.FutureForecastsAdapter
 import tk.lorddarthart.accurateweathertestapp.util.constants.SharedPreferencesKeys.SHARED_PREFERENCES_KEY_FUTURE_FORECAST
 import tk.lorddarthart.accurateweathertestapp.util.constants.SharedPreferencesValues.SHARED_PREFERENCES_3DAYS
@@ -42,7 +43,7 @@ import java.lang.reflect.Type
 import java.text.ParseException
 import java.text.SimpleDateFormat
 
-class ExtendedFragment : BaseFragment() {
+class ExtendedFragment : BaseFragment(), IOnBackPressed {
     // Tools
     private lateinit var futureForecastsList: MutableList<WeatherDayModel>
     private lateinit var recyclerViewAdapter: FutureForecastsAdapter
@@ -126,6 +127,9 @@ class ExtendedFragment : BaseFragment() {
                               savedInstanceState: Bundle?): View? {
         mView = inflater.inflate(layout.fragment_extended, container, false)
 
+        mActivity.mSetCity.isVisible = false
+        mActivity.displayHomeAsUpEnabled(true)
+
         initialization()
         setContent()
 
@@ -182,6 +186,7 @@ class ExtendedFragment : BaseFragment() {
             )
         }
         futureForecastsList = mutableListOf()
+        mActivity.setActionBarTitle(mWeatherCity!!)
     }
 
     override fun onClick(btn: String) {
@@ -224,6 +229,8 @@ class ExtendedFragment : BaseFragment() {
 
     override fun checkSharedPreferences() {
         super.checkSharedPreferences()
+
+        mActivity.mSetCity.isVisible = false
 
         setText()
         // Checking for "futureForecast" in preferences
@@ -301,6 +308,14 @@ class ExtendedFragment : BaseFragment() {
     override fun finishingSetContent() {
         super.finishingSetContent()
         initAdapter()
+    }
+
+    override fun onBackPressed(): Boolean {
+        mActivity.supportFragmentManager.popBackStack()
+        mActivity.setActionBarTitle(getString(string.app_name))
+        mActivity.mSetCity.isVisible = true
+        mActivity.displayHomeAsUpEnabled(false)
+        return true
     }
 
     companion object {

@@ -35,4 +35,6 @@
     <string name="delete_city_message">Вы уверены, что хотите удалить из списка данный город?</string>
     <string name="deleting_city_title">Удаление города</string>
     <string name="ioerror">Произошла ошибка, повторите попытку ввода</string>
+    <string name="exit_confirmation">Вы уверены, что хотите выйти?</string>
+    <string name="exit">Выход</string>
 </resources>

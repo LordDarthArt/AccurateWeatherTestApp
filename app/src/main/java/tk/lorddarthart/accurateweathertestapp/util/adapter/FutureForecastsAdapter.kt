@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import tk.lorddarthart.accurateweathertestapp.R
-import tk.lorddarthart.accurateweathertestapp.application.model.WeatherDayModel
+import tk.lorddarthart.accurateweathertestapp.application.model.weather.WeatherDayModel
 
 internal class FutureForecastsAdapter(//Адаптер для создания карточек с погодой на неделю в подробном просмотре.
         var context: Context,

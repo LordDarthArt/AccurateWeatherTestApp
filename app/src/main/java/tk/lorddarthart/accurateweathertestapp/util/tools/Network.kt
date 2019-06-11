@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import org.json.JSONException
-import tk.lorddarthart.accurateweathertestapp.application.model.WeatherModel
+import tk.lorddarthart.accurateweathertestapp.application.model.weather.WeatherModel
 import java.io.IOException
 import java.io.InputStream
 
@@ -14,8 +14,8 @@ interface Network {
                     latitude: String, longitude: String): Int // Getting current forecast
 
     @Throws(JSONException::class)
-    suspend fun readWeather(stringResponse: String, filterName: String,
-                            context: Context): WeatherModel // Getting weather
+    suspend fun readWeather(mStringResponse: String, mFilterName: String,
+                            mContext: Context): WeatherModel // Getting weather
 
     @Throws(IOException::class)
     fun inputStreamToString(inputStream: InputStream): String // Decode
