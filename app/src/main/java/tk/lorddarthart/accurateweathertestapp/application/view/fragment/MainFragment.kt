@@ -52,6 +52,7 @@ import tk.lorddarthart.accurateweathertestapp.util.tools.OnItemTouchListener
 import tk.lorddarthart.accurateweathertestapp.util.tools.WeatherDatabaseHelper
 import tk.lorddarthart.accurateweathertestapp.util.translator.YandexTranslate
 import java.io.IOException
+import java.lang.IllegalStateException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -617,14 +618,18 @@ class MainFragment : BaseFragment(), PullRefreshLayout.OnRefreshListener, IOnBac
     }
 
     private fun syncResult() {
-        Log.d(TAG, getString(R.string.syncresult_log))
-        opening2++
-        if (opening2 == mCitiesList.size) {
-            mForecastsCursor = mSqLiteDatabase.rawQuery(getQuery(), arrayOfNulls(0))
-            getCurrentForecast()
-            mSwipeRefreshLayout.setRefreshing(false)
-            mRecyclerView.visibility = View.VISIBLE
-            mConstraintLayout.visibility = View.GONE
+        try {
+            Log.d(TAG, getString(R.string.syncresult_log))
+            opening2++
+            if (opening2 == mCitiesList.size) {
+                mForecastsCursor = mSqLiteDatabase.rawQuery(getQuery(), arrayOfNulls(0))
+                getCurrentForecast()
+                mSwipeRefreshLayout.setRefreshing(false)
+                mRecyclerView.visibility = View.VISIBLE
+                mConstraintLayout.visibility = View.GONE
+            }
+        } catch (e: IllegalStateException) {
+            Log.d(TAG, "MainFragment was not attached to the context")
         }
     }
 

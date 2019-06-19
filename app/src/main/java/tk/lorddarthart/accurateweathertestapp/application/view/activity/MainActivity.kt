@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.FrameLayout
 import tk.lorddarthart.accurateweathertestapp.R
 import tk.lorddarthart.accurateweathertestapp.application.view.base.BaseActivity
 import tk.lorddarthart.accurateweathertestapp.application.view.fragment.MainFragment
@@ -13,11 +14,13 @@ import tk.lorddarthart.accurateweathertestapp.util.IOnBackPressed
 
 class MainActivity : BaseActivity() {
 
-    private lateinit var mFragment: MainFragment
+    lateinit var mFragment: MainFragment
     lateinit var mFloatingActionButton: FloatingActionButton
     lateinit var mSetCity: MenuItem
+    var mainFragment: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setMainFragment()
         super.onCreate(savedInstanceState)
         mFloatingActionButton = findViewById(R.id.floatingActionButton)
     }
@@ -36,6 +39,10 @@ class MainActivity : BaseActivity() {
         } else {
             mFloatingActionButton.hide()
         }
+    }
+
+    fun setMainFragment() {
+        mainFragment = R.id.mainFragment
     }
 
     override fun initFragment() {
@@ -63,7 +70,7 @@ class MainActivity : BaseActivity() {
                 else -> return false
             }
         }
-        return super.onOptionsItemSelected(item)
+        return super.onOptionsItemSelected(item!!)
     }
 
     override fun onBackPressed() {
@@ -77,8 +84,7 @@ class MainActivity : BaseActivity() {
     }
 
     override fun setContent() {
-        val mainFragment = R.id.mainFragment
         supportFragmentManager.beginTransaction()
-                .replace(mainFragment, mFragment).commitAllowingStateLoss()
+                .replace(mainFragment!!, mFragment).commitAllowingStateLoss()
     }
 }

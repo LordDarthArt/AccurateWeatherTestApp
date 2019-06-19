@@ -23,12 +23,12 @@ import tk.lorddarthart.accurateweathertestapp.util.tools.RVClickHandler
 import tk.lorddarthart.accurateweathertestapp.util.tools.WeatherDatabaseHelper
 
 class CitiesListFragment : BaseFragment(), IOnBackPressed {
-    private lateinit var mButtonApply: TextView
-    private lateinit var mCitiesListRecycler: RecyclerView
-    private lateinit var mLayoutManager: RecyclerView.LayoutManager
-    private lateinit var mCitiesListAdapter: CitiesListAdapter
-    private lateinit var mCitiesListBackground: ImageView
-    private val changes = arrayOf(0)
+    lateinit var mButtonApply: TextView
+    lateinit var mCitiesListRecycler: RecyclerView
+    lateinit var mLayoutManager: RecyclerView.LayoutManager
+    lateinit var mCitiesListAdapter: CitiesListAdapter
+    lateinit var mCitiesListBackground: ImageView
+    val changes = arrayOf(0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
